@@ -8,8 +8,7 @@
 
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <link rel="shortcut icon" href="images/favicon.ico">
-    <script src="Build/Cesium/Cesium.js?v=1.130.20241210"></script>
-    <script src="Apps/Sandcastle/Sandcastle-header.js"></script>
+    <!-- Cesium将在底部按正确顺序加载 -->
 
     <link type='text/css' rel='stylesheet' href='ThirdParty/datepicker/dist/css/bootstrap-datepicker.css'>
     <link type='text/css' rel='stylesheet' href='ThirdParty/datepicker/dist/css/calendar.css'>
@@ -1117,16 +1116,19 @@
 </main>
 
 
+<!-- 第1步：优先加载DWR脚本 -->
 <script type='text/javascript' src='./dwr/engine.js'></script>
 <script type='text/javascript' src='./dwr/util.js'></script>
 <script type='text/javascript' src='./dwr/interface/ServiceJS.js'></script>
 <script type='text/javascript' src='./dwr/interface/DatabaseOperationJS.js'></script>
+
+<!-- 第2步：加载Cesium和jQuery -->
+<script type='text/javascript' src="Build/Cesium/Cesium.js?v=1.130.20241210"></script>
+<script type='text/javascript' src="Apps/Sandcastle/Sandcastle-header.js"></script>
 <script type='text/javascript' src="ThirdParty/jquery/jquery.min.js"></script>
 <script type='text/javascript' src="ThirdParty/bootstrap/bootstrap.min.js"></script>
 <script type='text/javascript' src="ThirdParty/datepicker/dist/js/bootstrap-datepicker.js"></script>
 <script type="text/javascript" src="ThirdParty/datepicker/datepickerex.js"></script>
-<script type='text/javascript' src="Build/Cesium/Cesium.js?v=1.130.20241210"></script>
-<script type='text/javascript' src="Apps/Sandcastle/Sandcastle-header.js"></script>
 <script type='text/javascript' src='ThirdParty/ECharts/echarts.min.js'></script>
 <script type='text/javascript' src="ThirdParty/heatmap/CesiumHeatmap.js"></script>
 <script type='text/javascript' src="ThirdParty/fancytree/src/jquery-1.12.1.min.js"></script>
@@ -1138,45 +1140,73 @@
 <script type='text/javascript' src="ThirdParty/bootstrap-table/src/bootstrap-table.js"></script>
 <script type='text/javascript' src="ThirdParty/bootstrapslider/bootstrap-slider.js"></script>
 
-<!-- DWR支持 - 航迹线显示需要 -->
-<script type='text/javascript' src='dwr/interface/DatabaseOperationJS.js'></script>
-<script type='text/javascript' src='dwr/interface/ServiceJS.js'></script>
-<script type='text/javascript' src='dwr/engine.js'></script>
-<script type='text/javascript' src='dwr/util.js'></script>
-
-<!-- IVSOSD核心系统重写版本 - 保持原始布局，重新实现核心功能 -->
-<!-- 确保DWR和基础库已加载后再加载IVSOSD核心 -->
+<!-- 第3步：等待DWR初始化完成后加载应用脚本 -->
 <script type="text/javascript">
-// 确保DWR加载完成
-window.addEventListener('load', function() {
-    console.log('页面完全加载，开始加载IVSOSD核心脚本...');
+function checkDWRAndLoadApp() {
+    console.log('检查DWR和依赖库状态...');
     
-    // 检查必要的依赖
+    // 检查所有必要的依赖
+    if (typeof dwr === 'undefined') {
+        console.log('等待DWR引擎加载...');
+        setTimeout(checkDWRAndLoadApp, 100);
+        return;
+    }
+    
+    if (typeof DatabaseOperationJS === 'undefined') {
+        console.log('等待DatabaseOperationJS加载...');
+        setTimeout(checkDWRAndLoadApp, 100);
+        return;
+    }
+    
     if (typeof Cesium === 'undefined') {
-        console.error('Cesium未加载');
+        console.log('等待Cesium加载...');
+        setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
     if (typeof $ === 'undefined') {
-        console.error('jQuery未加载');
+        console.log('等待jQuery加载...');
+        setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
-    console.log('依赖检查完成，继续加载IVSOSD核心...');
-});
-</script>
-<script type="text/javascript" src="js/imagery_manager.js?v=1.130.20241211"></script>
-<script type="text/javascript" src="js/safe_data_loader.js?v=1.130.20241211"></script>
-<script type="text/javascript" src="js/initial.js?v=1.130.20241211"></script>
-<script type="text/javascript" src="js/ivsosd_core_rewrite.js?v=1.130.20241211"></script>
-<script type="text/javascript" src="js/emergency_imagery_fix.js?v=1.130.20241211"></script>
+    console.log('✅ 所有依赖已就绪，开始加载应用脚本...');
+    
+    // 动态加载应用脚本
+    var scripts = [
+        'js/initial.js?v=' + Date.now(),
+        'js/main.js?v=' + Date.now(),
+        'js/terrain.js?v=' + Date.now(),
+        'js/profile.js?v=' + Date.now(),
+        'js/stationinfo.js?v=' + Date.now(),
+        'js/voyage.js?v=' + Date.now()
+    ];
+    
+    function loadScript(index) {
+        if (index >= scripts.length) {
+            console.log('✅ 所有应用脚本加载完成');
+            return;
+        }
+        
+        var script = document.createElement('script');
+        script.src = scripts[index];
+        script.onload = function() {
+            console.log('✅ 已加载: ' + scripts[index]);
+            loadScript(index + 1);
+        };
+        script.onerror = function() {
+            console.error('❌ 加载失败: ' + scripts[index]);
+            loadScript(index + 1);
+        };
+        document.head.appendChild(script);
+    }
+    
+    loadScript(0);
+}
 
-<!-- 备用原始脚本文件（保留兼容性） -->
-<script type="text/javascript" src="js/main.js?v=1.130.20241210"></script>
-<script type="text/javascript" src="js/terrain.js?v=1.130.20241210"></script>
-<script type="text/javascript" src="js/profile.js?v=1.130.20241210"></script>
-<script type="text/javascript" src="js/stationinfo.js?v=1.130.20241210"></script>
-<script type="text/javascript" src="js/voyage.js?v=1.130.20241210"></script>
+// 页面DOM加载完成后开始检查
+document.addEventListener('DOMContentLoaded', checkDWRAndLoadApp);
+</script>
 
 </body>
 </html>

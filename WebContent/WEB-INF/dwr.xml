@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE dwr PUBLIC  
+    "-//GetAhead Limited//DTD Direct Web Remoting 3.0//EN"  
+    "http://getahead.org/dwr/dwr30.dtd">
+
+<dwr>
+	<allow>
+		<create creator="new" javascript="ServiceJS">
+			<param name="class" value="DWRService.ServiceClass"></param>
+		</create>
+		<create creator="new" javascript="DatabaseOperationJS">
+			<param name="class" value="DBUtilities.DatabaseOperation"/>
+			<param name="scope" value="session"/>
+			<include method="testConnection"/>
+			<include method="testConnectionSafe"/>
+			<include method="queryVoyageListSafe"/>
+			<include method="sayHello"/>
+			<include method="testDatabaseConnection"/>
+			<include method="QueryVoyageList"/>
+			<include method="QueryVoyageInfo"/>
+			<include method="QueryStationList"/>
+			<include method="QueryStationInfo"/>
+			<include method="QueryMetadataList"/>
+			<include method="QueryDataRange"/>
+			<include method="QueryCTDList"/>
+		</create>
+		<convert converter="bean" match="hangci.*" />
+		<convert converter="bean" match="VoyageMod.*" />
+	</allow>
+	
+	<init>
+		<creator id="new" class="org.directwebremoting.create.NewCreator"/>
+		<converter id="bean" class="org.directwebremoting.convert.BeanConverter"/>
+		<converter id="collection" class="org.directwebremoting.convert.CollectionConverter"/>
+		<converter id="map" class="org.directwebremoting.convert.MapConverter"/>
+		<converter id="object" class="org.directwebremoting.convert.ObjectConverter"/>
+	</init>
+	
+	<signatures>
+		<![CDATA[
+		import java.util.List;
+		import java.util.ArrayList;
+		import VoyageMod.*;
+		]]>
+	</signatures>
+
+</dwr>  

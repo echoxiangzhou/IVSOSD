@@ -427,25 +427,63 @@ function OriginalAddAllRoute() {
     
     console.log('Calling DatabaseOperationJS.QueryVoyageList with SQL:', strSQLVoyAll);
     
-    // Add error handling for DWR call (DWR 3.0 format)
+    // 使用新的安全查询方法（基于test_db.html成功案例）
     try {
-        DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, {
-            callback: callBackVoyageList,
-            errorHandler: function(error) {
-                console.error('DWR call failed:', error);
-                // Try with empty SQL to use default query
-                console.log('Retrying with default query...');
-                DatabaseOperationJS.QueryVoyageList('', {
-                    callback: callBackVoyageList,
-                    errorHandler: function(error2) {
-                        console.error('Default query also failed:', error2);
-                        callBackVoyageList([]); // Call with empty array
+        console.log('🛡️ 尝试使用安全航次查询方法...');
+        
+        // 优先使用新的安全方法
+        if (typeof DatabaseOperationJS.queryVoyageListSafe === 'function') {
+            DatabaseOperationJS.queryVoyageListSafe({
+                callback: function(result) {
+                    console.log('✅ 安全航次查询成功:', result);
+                    
+                    // 将字符串结果解析为航次数据
+                    if (typeof result === 'string') {
+                        console.log('📋 解析安全查询返回的字符串数据...');
+                        
+                        // 解析字符串结果，提取航次信息
+                        var voyageData = parseSafeQueryResult(result);
+                        callBackVoyageList(voyageData);
+                    } else {
+                        callBackVoyageList([]);
                     }
-                });
-            }
-        });
+                },
+                errorHandler: function(error) {
+                    console.error('❌ 安全航次查询失败:', error);
+                    tryOriginalQuery();
+                }
+            });
+        } else {
+            console.log('⚠️ 安全查询方法不可用，使用原始方法...');
+            tryOriginalQuery();
+        }
+        
+        function tryOriginalQuery() {
+            DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, 
+                function(data) {
+                    console.log('✅ 原始航次数据查询成功:', data);
+                    callBackVoyageList(data);
+                },
+                function(error) {
+                    console.error('❌ 原始航次数据查询失败:', error);
+                    // Try with empty SQL to use default query
+                    console.log('🔄 尝试默认查询...');
+                    DatabaseOperationJS.QueryVoyageList('', 
+                        function(data) {
+                            console.log('✅ 默认查询成功:', data);
+                            callBackVoyageList(data);
+                        },
+                        function(error2) {
+                            console.error('❌ 默认查询也失败:', error2);
+                            callBackVoyageList([]); // Call with empty array
+                        }
+                    );
+                }
+            );
+        }
+        
     } catch (e) {
-        console.error('Exception calling DatabaseOperationJS.QueryVoyageList:', e);
+        console.error('Exception calling voyage query methods:', e);
         callBackVoyageList([]); // Call with empty array
     }
 
@@ -571,6 +609,80 @@ var voyRows = [];
 var voyageList2 = [];
 var voyRowNumber = 15;
 var curPageNumber = 1;
+// 解析安全查询返回的字符串结果
+function parseSafeQueryResult(resultString) {
+    console.log('📋 解析安全查询结果:', resultString);
+    
+    var voyageList = [];
+    
+    if (!resultString || typeof resultString !== 'string') {
+        console.warn('⚠️ 安全查询结果为空或非字符串');
+        return voyageList;
+    }
+    
+    try {
+        // 解析字符串，提取航次信息
+        var lines = resultString.split('\n');
+        
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            
+            // 查找航次数据行 (格式: 航次1: ID=..., NAME=..., SEA_AREA=..., V_START=...)
+            if (line.startsWith('航次') && line.includes('ID=')) {
+                try {
+                    var voyageInfo = {};
+                    
+                    // 提取ID
+                    var idMatch = line.match(/ID=([^,]+)/);
+                    if (idMatch) voyageInfo.id = idMatch[1].trim();
+                    
+                    // 提取NAME
+                    var nameMatch = line.match(/NAME=([^,]+)/);
+                    if (nameMatch) {
+                        var name = nameMatch[1].trim();
+                        voyageInfo.name = name !== 'null' ? name : '';
+                    }
+                    
+                    // 提取SEA_AREA
+                    var areaMatch = line.match(/SEA_AREA=([^,]+)/);
+                    if (areaMatch) {
+                        var area = areaMatch[1].trim();
+                        voyageInfo.seaArea = area !== 'null' ? area : '';
+                    }
+                    
+                    // 提取V_START
+                    var startMatch = line.match(/V_START=([^,\n]+)/);
+                    if (startMatch) {
+                        var start = startMatch[1].trim();
+                        voyageInfo.vStart = start !== 'null' ? start : '';
+                    }
+                    
+                    // 设置默认值以匹配VoyageInfo结构
+                    voyageInfo.trajPath = '';
+                    voyageInfo.element = '';
+                    voyageInfo.vEnd = '';
+                    voyageInfo.scientist = '';
+                    voyageInfo.project = '';
+                    
+                    if (voyageInfo.id) {
+                        voyageList.push(voyageInfo);
+                        console.log('✅ 解析航次:', voyageInfo);
+                    }
+                } catch (parseError) {
+                    console.warn('⚠️ 解析航次行失败:', line, parseError);
+                }
+            }
+        }
+        
+        console.log('📊 解析完成，共', voyageList.length, '条航次记录');
+        
+    } catch (error) {
+        console.error('❌ 解析安全查询结果失败:', error);
+    }
+    
+    return voyageList;
+}
+
 var callBackVoyageList = function (voyageList) {
     console.log('🚢 callBackVoyageList called with:', voyageList);
     
@@ -677,6 +789,7 @@ var callBackVoyageList = function (voyageList) {
         }
         
         console.log('📊 处理航次列表项 ' + i + ':', voyageList[i]);
+        console.log('🔍 数据库字段名:', Object.keys(voyageList[i]));
         
         // 通用字段值获取函数
         const getFieldValue = (obj, ...fieldNames) => {
@@ -688,22 +801,22 @@ var callBackVoyageList = function (voyageList) {
             return null;
         };
         
-        // 获取航次名称
-        var voyageName = getFieldValue(voyageList[i], 'name', 'NAME', 'Name') || '未知航次';
+        // 获取航次名称 - 添加更多可能的字段名
+        var voyageName = getFieldValue(voyageList[i], 'name', 'NAME', 'Name', 'VOYAGE_NAME', 'voyage_name', 'voyageName', 'V_NAME', 'v_name') || '未知航次';
         var nameSubstr = voyageName;
         if (voyageName && voyageName.length > 14) {
             nameSubstr = voyageName.substring(0, 14) + "…";
         }
         
-        // 获取海域
-        var seaAreaName = getFieldValue(voyageList[i], 'seaArea', 'SEA_AREA', 'sea_area', 'SeaArea') || '未知区域';
+        // 获取海域 - 添加更多可能的字段名
+        var seaAreaName = getFieldValue(voyageList[i], 'seaArea', 'SEA_AREA', 'sea_area', 'SeaArea', 'AREA', 'area', 'REGION', 'region', 'HAIYU', 'haiyu') || '未知区域';
         var seaAreaSubstr = seaAreaName;
         if (seaAreaName && seaAreaName.length > 3) {
             seaAreaSubstr = seaAreaName.substring(0, 3) + "…";
         }
         
-        // 获取开始时间
-        var vStartValue = getFieldValue(voyageList[i], 'VStart', 'vStart', 'V_START', 'v_start') || '';
+        // 获取开始时间 - 添加更多可能的字段名
+        var vStartValue = getFieldValue(voyageList[i], 'VStart', 'vStart', 'V_START', 'v_start', 'START_DATE', 'start_date', 'startDate', 'START_TIME', 'start_time') || '';
         var startDateStr = '';
         if (vStartValue) {
             startDateStr = typeof vStartValue === 'string' ? vStartValue.substring(0, 10) : vStartValue;
@@ -1176,25 +1289,25 @@ var callBackVoyageInfo = function (voyageInfo) {
         setElementText("hangcibianhao", voyageId);
         
         // 航次名称 - 尝试多种字段名
-        const voyageName = getFieldValue(voyageInfo, 'name', 'NAME', 'Name');
+        const voyageName = getFieldValue(voyageInfo, 'name', 'NAME', 'Name', 'VOYAGE_NAME', 'voyage_name', 'voyageName', 'V_NAME', 'v_name');
         setElementText("hangcimingcheng", voyageName);
         
         // 开始日期 - 尝试多种字段名和格式
-        const vStart = getFieldValue(voyageInfo, 'VStart', 'vStart', 'V_START', 'v_start');
+        const vStart = getFieldValue(voyageInfo, 'VStart', 'vStart', 'V_START', 'v_start', 'START_DATE', 'start_date', 'startDate', 'START_TIME', 'start_time');
         const startDate = vStart ? (typeof vStart === 'string' ? vStart.substring(0, 10) : vStart) : '';
         setElementText("kaishiriqi", startDate);
         
         // 结束日期
-        const vEnd = getFieldValue(voyageInfo, 'VEnd', 'vEnd', 'V_END', 'v_end');
+        const vEnd = getFieldValue(voyageInfo, 'VEnd', 'vEnd', 'V_END', 'v_end', 'END_DATE', 'end_date', 'endDate', 'END_TIME', 'end_time');
         const endDate = vEnd ? (typeof vEnd === 'string' ? vEnd.substring(0, 10) : vEnd) : '';
         setElementText("jieshuriqi", endDate);
         
         // 科学家
-        const scientist = getFieldValue(voyageInfo, 'scientist', 'SCIENTIST', 'Scientist');
+        const scientist = getFieldValue(voyageInfo, 'scientist', 'SCIENTIST', 'Scientist', 'KEXUEJIA', 'kexuejia');
         setElementText("kexuejia", scientist);
         
         // 调查海域
-        const seaArea = getFieldValue(voyageInfo, 'seaArea', 'SEA_AREA', 'sea_area', 'SeaArea');
+        const seaArea = getFieldValue(voyageInfo, 'seaArea', 'SEA_AREA', 'sea_area', 'SeaArea', 'AREA', 'area', 'REGION', 'region', 'HAIYU', 'haiyu');
         setElementText("diaochahaiyu", seaArea);
         
         // 课题编号
@@ -3556,7 +3669,10 @@ function ShowBaseInfo() {
                         show: currentShow,
                         alpha: currentAlpha,
                         ready: isReady,
-                        provider: window.primaryImageryLayer.imageryProvider.constructor.name
+                        provider: (window.primaryImageryLayer && 
+                                 window.primaryImageryLayer.imageryProvider && 
+                                 window.primaryImageryLayer.imageryProvider.constructor) ? 
+                                window.primaryImageryLayer.imageryProvider.constructor.name : 'Unknown'
                     });
                     
                     // 强制确保图层可见

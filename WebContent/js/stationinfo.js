@@ -148,7 +148,24 @@ function initctdInfoTable(selVoyName,selStaID) {
     }
 
     var strSQLCTDlist = "";
-    DatabaseOperationJS.QueryCTDList(strSQLCTDlist, selStaID, callBackCTDList);
+    // 使用正确的DWR调用格式
+    try {
+        DatabaseOperationJS.QueryCTDList(strSQLCTDlist, selStaID, 
+            function(data) {
+                console.log('✅ CTD数据查询成功:', data);
+                callBackCTDList(data);
+            },
+            function(error) {
+                console.error('❌ CTD数据查询失败:', error);
+                alert('CTD数据查询失败，请检查网络连接和数据库状态');
+                callBackCTDList([]);
+            }
+        );
+    } catch (e) {
+        console.error('❌ CTD数据查询异常:', e);
+        alert('CTD数据查询出现异常');
+        callBackCTDList([]);
+    }
 
 
 }

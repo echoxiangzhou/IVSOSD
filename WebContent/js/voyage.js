@@ -136,7 +136,25 @@ function initializeFancytree() {
                 }
                 //查询航次
                 var strSQLSelVoyList = strSQLMetaListSub1 + "(" + strSQLMetaListSub2 + strSQLMetaListSub3 + ")";
-                DatabaseOperationJS.QueryMetadataList(strSQLSelVoyList, callBackMetadataList);
+                
+                // 使用正确的DWR调用格式
+                try {
+                    DatabaseOperationJS.QueryMetadataList(strSQLSelVoyList, 
+                        function(data) {
+                            console.log('✅ 元数据查询成功:', data);
+                            callBackMetadataList(data);
+                        },
+                        function(error) {
+                            console.error('❌ 元数据查询失败:', error);
+                            alert('元数据查询失败，请检查网络连接和数据库状态');
+                            callBackMetadataList([]);
+                        }
+                    );
+                } catch (e) {
+                    console.error('❌ 元数据查询异常:', e);
+                    alert('元数据查询出现异常');
+                    callBackMetadataList([]);
+                }
 
 
             }
@@ -177,7 +195,25 @@ var callBackMetadataList = function (metadataList) {
 
     //查询航次列表
     strSQLSelVoyList = strSQLSelVoyList + " ) and to_char(V_START,'yyyy-mm-dd')<='" + voyDateEnd + "' and to_char(V_END,'yyyy-mm-dd')>='" + voyDateStart + "' order by ID";
-    DatabaseOperationJS.QueryVoyageList(strSQLSelVoyList, callBackVoyageList);
+    
+    // 使用正确的DWR调用格式
+    try {
+        DatabaseOperationJS.QueryVoyageList(strSQLSelVoyList, 
+            function(data) {
+                console.log('✅ 航次列表查询成功:', data);
+                callBackVoyageList(data);
+            },
+            function(error) {
+                console.error('❌ 航次列表查询失败:', error);
+                alert('航次列表查询失败，请检查网络连接和数据库状态');
+                callBackVoyageList([]);
+            }
+        );
+    } catch (e) {
+        console.error('❌ 航次列表查询异常:', e);
+        alert('航次列表查询出现异常');
+        callBackVoyageList([]);
+    }
 
     arrSelVoyIDList.length = 0;
 }
