@@ -34,7 +34,6 @@ class CombinedPanelFixManager {
      * 初始化所有修复
      */
     init() {
-        console.log('🔧 初始化综合面板修复系统...');
         
         // 等待DOM加载完成
         if (document.readyState === 'loading') {
@@ -66,7 +65,6 @@ class CombinedPanelFixManager {
         this.fixContentAreaPosition();
         this.startContentAreaObserver();
         
-        console.log('✅ 综合面板修复系统初始化完成');
     }
 
     /**
@@ -140,7 +138,6 @@ class CombinedPanelFixManager {
         // 添加到页面
         document.body.appendChild(opener);
 
-        console.log('✅ 右侧面板开启按钮已创建');
     }
     
     /**
@@ -191,7 +188,6 @@ class CombinedPanelFixManager {
         // 添加到页面
         document.body.appendChild(closer);
         
-        console.log('✅ 右侧面板关闭按钮已创建');
     }
 
     /**
@@ -218,7 +214,6 @@ class CombinedPanelFixManager {
                     handler();
                 });
 
-                console.log(`✅ 修复导航按钮: ${element}`);
             }
         });
     }
@@ -240,7 +235,6 @@ class CombinedPanelFixManager {
             }
         });
 
-        console.log('✅ 键盘快捷键已绑定 (Ctrl+Shift+R: 切换右侧面板, Esc: 关闭所有面板)');
     }
 
     /**
@@ -291,7 +285,6 @@ class CombinedPanelFixManager {
                 window.rightPanelManager.showPanel();
             }
 
-            console.log('📖 右侧面板已显示');
         }
     }
 
@@ -328,7 +321,6 @@ class CombinedPanelFixManager {
                 window.rightPanelManager.hidePanel();
             }
 
-            console.log('📖 右侧面板已隐藏');
         }
     }
 
@@ -336,7 +328,6 @@ class CombinedPanelFixManager {
      * 打开航次面板
      */
     openVoyagePanel() {
-        console.log('🚢 打开航次站位面板');
         
         this.showRightPanel();
         
@@ -358,7 +349,6 @@ class CombinedPanelFixManager {
      * 打开剖面面板
      */
     openProfilePanel() {
-        console.log('📊 打开剖面信息面板');
         
         this.showRightPanel();
         
@@ -380,7 +370,6 @@ class CombinedPanelFixManager {
      * 打开地形面板
      */
     openTerrainPanel() {
-        console.log('🗻 打开海底地形面板');
         
         this.showRightPanel();
         
@@ -402,7 +391,6 @@ class CombinedPanelFixManager {
      * 打开洋流面板
      */
     openCurrentPanel() {
-        console.log('🌊 打开洋流风场面板');
         
         this.showRightPanel();
         
@@ -432,7 +420,6 @@ class CombinedPanelFixManager {
             leftPanel.classList.remove('active');
         }
 
-        console.log('📖 所有面板已隐藏');
     }
 
     /**
@@ -484,7 +471,6 @@ class CombinedPanelFixManager {
             mutations.forEach((mutation) => {
                 if (mutation.target.classList.contains('active') || 
                     mutation.target.style.transform !== 'none') {
-                    console.log('⚠️ 检测到可能的地球移动，正在阻止...');
                     this.preventEarthShift();
                 }
             });
@@ -509,7 +495,6 @@ class CombinedPanelFixManager {
         
         const currentPosition = window.getComputedStyle(contentArea).position;
         if (currentPosition !== 'relative') {
-            console.log('🔧 修复 content-area position:', currentPosition, '→ relative');
             
             // 保存现有样式
             const currentStyle = contentArea.getAttribute('style') || '';
@@ -541,7 +526,6 @@ class CombinedPanelFixManager {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                     const position = window.getComputedStyle(contentArea).position;
                     if (position !== 'relative') {
-                        console.log('⚠️ 检测到 position 被改变:', position);
                         this.fixContentAreaPosition();
                     }
                 }
@@ -583,7 +567,6 @@ class CombinedPanelFixManager {
      * 强制修复面板内容显示
      */
     forcePanelContentFix() {
-        console.log('🔧 开始强制修复面板内容...');
         
         // 1. 获取所有关键元素
         const panel = document.getElementById('sidebar-right');
@@ -597,7 +580,6 @@ class CombinedPanelFixManager {
         }
         
         // 2. 强制设置 content-area 的样式
-        console.log('📐 设置 content-area 样式...');
         contentArea.style.cssText = `
             flex: 1 !important;
             background-color: #ffffff !important;
@@ -610,7 +592,6 @@ class CombinedPanelFixManager {
         
         // 3. 修复 voyage-content 样式
         if (voyageContent) {
-            console.log('📋 设置 voyage-content 样式...');
             voyageContent.style.cssText = `
                 position: absolute !important;
                 top: 0 !important;
@@ -629,7 +610,6 @@ class CombinedPanelFixManager {
         
         // 4. 修复查询内容区域
         if (queryContent) {
-            console.log('🔍 设置 query-content 样式...');
             queryContent.style.cssText = `
                 display: block !important;
                 flex: 1 !important;
@@ -663,14 +643,12 @@ class CombinedPanelFixManager {
             `;
         }
         
-        console.log('✅ 强制修复完成');
     }
     
     /**
      * 强制设置白色背景
      */
     forceWhiteBackground() {
-        console.log('🎨 强制设置面板白色背景');
         
         const panel = document.getElementById('sidebar-right');
         if (panel) {
@@ -758,7 +736,6 @@ class CombinedPanelFixManager {
                 }
             });
             
-            console.log('✅ 背景色设置完成');
         }
     }
 
@@ -866,7 +843,6 @@ class CombinedPanelFixManager {
         `;
         
         document.head.appendChild(style);
-        console.log('✅ 综合样式已添加');
     }
 
     /**
@@ -914,7 +890,6 @@ initializeCombinedPanelFix();
 // 覆盖原有的 openVoyagePanel 函数
 const originalOpenVoyagePanel = window.openVoyagePanel;
 window.openVoyagePanel = function() {
-    console.log('🚀 综合修复版 openVoyagePanel 被调用');
     
     // 使用综合修复管理器
     if (combinedPanelFixManager) {
@@ -956,7 +931,6 @@ window.yangliuclick = function() {
 if (typeof window.hanciclick !== 'undefined') {
     const originalHanciclick = window.hanciclick;
     window.hanciclick = function() {
-        console.log('🛡️ hanciclick 防护已激活');
         
         // 调用原函数
         if (typeof originalHanciclick === 'function' && originalHanciclick !== window.hanciclick) {
@@ -1000,4 +974,3 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = CombinedPanelFixManager;
 }
 
-console.log('🎉 综合面板修复管理器已加载 - v2.0');

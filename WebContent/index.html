@@ -83,7 +83,6 @@
         // 备用函数，防止脚本加载延迟
         if (typeof window.openVoyagePanel === 'undefined') {
             window.openVoyagePanel = function() {
-                console.log('🚢 使用备用函数打开航次面板');
                 // 等待脚本加载完成
                 const tryOpen = function() {
                     if (typeof window.openVoyagePanel !== 'undefined' && window.openVoyagePanel !== tryOpen) {
@@ -95,7 +94,6 @@
                             panel.classList.add('active');
                             panel.style.right = '0px';
                             panel.style.display = 'flex';
-                            console.log('✅ 备用函数成功打开面板');
                             
                             // 延迟执行修复
                             setTimeout(() => {
@@ -114,15 +112,12 @@
         
         // 其他页面级别的函数
         function poumianclick() {
-            console.log('点击了剖面信息');
         }
         
         function dixingclick() {
-            console.log('点击了海底地形');
         }
         
         function yangliuclick() {
-            console.log('点击了洋流风场');
         }
     </script>
 
@@ -132,7 +127,6 @@
 
 <script>
     // 确保函数立即可用
-    console.log('🔍 检查测试面板函数:', typeof showTestPanel, typeof hideTestPanel);
     
     // 如果函数未定义，提供备用函数
     if (typeof showTestPanel === 'undefined') {
@@ -204,141 +198,144 @@
                     </div>
                     
                     <!-- 航次查询内容 -->
-                    <div class='sub-content active' id='voyage-query-content' style="display: block !important; flex: 1 !important; padding: 15px !important; background-color: #ffffff !important; background: #ffffff !important;">
-                        <div class='content-section'>
-                            <div class='section-header'>查询结果</div>
-                            <div class='table-container'>
-                                <table class='data-table' id='tblVoyageList'>
-                                    <thead>
-                                        <tr>
-                                            <th width="50">编号</th>
-                                            <th>航次名称</th>
-                                            <th width="80">海域</th>
-                                            <th width="100">调查时间</th>
+                    <div class='sub-content active' id='voyage-query-content' class="tab-pane fade in active">
+                        <div class='info-contents-10'>
+                            <div class="panel panel-info">
+                                <div class="panel-heading">查询结果</div>
+                                <table id="tblVoyageList" class="table table-border table-bordered table-hover table-bg">
+                                    <thead style="text-align:center">
+                                        <tr style="text-align:center">
+                                            <th width="50" style="text-align:center">编号</th>
+                                            <th style="text-align:center">航次名称</th>
+                                            <th width="80" style="text-align:center">海域</th>
+                                            <th width="100" style="text-align:center">调查时间</th>
                                         </tr>
                                     </thead>
-                                    <tbody id='tbodyVoyageList'>
-                                        <tr>
-                                            <td colspan="4" class="empty-state">
-                                                <div class="empty-message">
-                                                    <i class="icon-ship"></i>
-                                                    <p>请选择航次类别并点击查询按钮</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="tbodyVoyageList" class="text-c"></tbody>
                                 </table>
                             </div>
-                            <div class='pagination-controls'>
-                                <button class='page-btn' id='voyPre' onclick='voyPagePrevious()'>‹</button>
-                                <button class='page-btn' id='voyNext' onclick='voyPageNext()'>›</button>
+                            
+                            <div style="margin-top: -16px;">
+                                <button id="voyPre" onclick="voyPagePrevious()"></button>
+                                <button id="voyNext" onclick="voyPageNext()"></button>
                             </div>
                         </div>
                     </div>
                     
                     <!-- 航次信息内容 -->
                     <div class='sub-content' id='voyage-info-content'>
-                        <div class='content-section'>
-                            <div class='section-header'>基本信息</div>
-                            <div class='info-table'>
-                                <div class='info-row'>
-                                    <div class='info-label'>航次编号:</div>
-                                    <div class='info-value' id='hangcibianhao'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>航次名称:</div>
-                                    <div class='info-value' id='hangcimingcheng'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>开始日期:</div>
-                                    <div class='info-value' id='kaishiriqi'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>结束日期:</div>
-                                    <div class='info-value' id='jieshuriqi'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>首席科学家:</div>
-                                    <div class='info-value' id='kexuejia'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>调查海区:</div>
-                                    <div class='info-value' id='diaochahaiyu'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>项目编号:</div>
-                                    <div class='info-value' id='ketibianhao'>-</div>
-                                </div>
+                        <div class='info-contents-10'>
+                            <div class="panel panel-info">
+                                <div class="panel-heading">基本信息</div>
+                                <table class="table table-bg">
+                                    <tr>
+                                        <td class="voyagebaseinfo">航次编号:</td>
+                                        <td style="text-align: left"><span id="hangcibianhao"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">航次名称:</td>
+                                        <td style="text-align: left"><span id="hangcimingcheng"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">开始日期:</td>
+                                        <td style="text-align: left"><span id="kaishiriqi"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">结束日期:</td>
+                                        <td style="text-align: left"><span id="jieshuriqi"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">首席科学家:</td>
+                                        <td style="text-align: left"><span id="kexuejia"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">调查海区:</td>
+                                        <td style="text-align: left"><span id="diaochahaiyu"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="voyagebaseinfo">来源项目/课题编号:</td>
+                                        <td style="text-align: left"><span id="ketibianhao"></span></td>
+                                    </tr>
+                                </table>
                             </div>
-                        </div>
-                        
-                        <div class='content-section'>
-                            <div class='section-header'>站点列表</div>
-                            <div class='table-container'>
-                                <table class='data-table' id='tblStationList'>
-                                    <thead>
-                                        <tr>
-                                            <th>站点</th>
-                                            <th>经度（度）</th>
-                                            <th>纬度（度）</th>
-                                            <th>水深（米）</th>
+                            
+                            <div class="panel panel-info">
+                                <div class="panel-heading">站点列表</div>
+                                <table id="tblStationList" class="table table-border table-bordered table-hover table-bg">
+                                    <thead style="text-align:center">
+                                        <tr style="text-align:center">
+                                            <th data-field="name" style="width: auto; text-align:center">站点</th>
+                                            <th data-field="longitude" style="text-align:center">经度（度）</th>
+                                            <th data-field="latitude" style="text-align:center">纬度（度）</th>
+                                            <th style="text-align:center;" data-field="deep">水深（米）</th>
                                         </tr>
                                     </thead>
-                                    <tbody id='tbodyStationList'>
-                                        <tr>
-                                            <td colspan="4" class="empty-state">
-                                                <div class="empty-message">
-                                                    <p>请先选择航次</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="tbodyStationList" class="text-c"></tbody>
                                 </table>
+                            </div>
+                            
+                            <div style="margin-top: -16px;">
+                                <button id="staPre" onclick="staPagePrevious()"></button>
+                                <button id="staNext" onclick="staPageNext()"></button>
                             </div>
                         </div>
                     </div>
                     
                     <!-- 站点信息内容 -->
                     <div class='sub-content' id='station-info-content'>
-                        <div class='content-section'>
-                            <div class='section-header'>站点基本信息</div>
-                            <div class='info-table'>
-                                <div class='info-row'>
-                                    <div class='info-label'>编号:</div>
-                                    <div class='info-value' id='zhandian'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>经度（度）:</div>
-                                    <div class='info-value' id='jingdu'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>纬度（度）:</div>
-                                    <div class='info-value' id='weidu'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>水深（米）:</div>
-                                    <div class='info-value' id='shuishen'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>日期:</div>
-                                    <div class='info-value' id='riqi'>-</div>
-                                </div>
-                                <div class='info-row'>
-                                    <div class='info-label'>航次:</div>
-                                    <div class='info-value' id='hangci'>-</div>
+                        <div class='info-contents-10'>
+                            <div class="panel panel-info">
+                                <div class="panel-heading">基本信息</div>
+                                <table class="table table-bg">
+                                    <tr>
+                                        <td class="stationbaseinfo" style="width:112px;">
+                                            编&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号&nbsp;&nbsp;&nbsp;:
+                                        </td>
+                                        <td style="text-align: left"><span id="zhandian" class='info-span-3'></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="stationbaseinfo">
+                                            经&nbsp;&nbsp;&nbsp;&nbsp;度（度）:
+                                        </td>
+                                        <td style="text-align: left"><span id="jingdu" class='info-span-4'></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="stationbaseinfo">
+                                            纬&nbsp;&nbsp;&nbsp;&nbsp;度（度）:
+                                        </td>
+                                        <td style="text-align: left"><span id="weidu" class='info-span-5'></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="stationbaseinfo">
+                                            水&nbsp;&nbsp;&nbsp;&nbsp;深（米）:
+                                        </td>
+                                        <td style="text-align: left"><span id="shuishen" class='info-span-6'></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="stationbaseinfo">
+                                            日&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;期&nbsp;&nbsp;&nbsp;:
+                                        </td>
+                                        <td style="text-align: left"><span id="riqi" class='info-span-6'></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="stationbaseinfo">
+                                            航&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;:
+                                        </td>
+                                        <td style="text-align: left"><span id="hangci" class='info-span-6'></span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div class="panel panel-info">
+                                <div class="panel-heading">观测信息</div>
+                                <div style="padding: 10px;">
+                                    <select id='yValue' onchange='updateView()' class="form-control" style="width: 200px; margin-bottom: 10px;">
+                                        <option value='Temperature'>温度</option>
+                                        <option value='Salinity'>盐度</option>
+                                    </select>
+                                    <div id='pointChart' style="width: 100%; height: 400px;"></div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class='content-section'>
-                            <div class='section-header'>观测信息</div>
-                            <div class='chart-controls'>
-                                <select id='yValue' onchange='updateView()'>
-                                    <option value='Temperature'>温度</option>
-                                    <option value='Salinity'>盐度</option>
-                                </select>
-                            </div>
-                            <div class='chart-container' id='pointChart'></div>
                         </div>
                     </div>
                 </div>
@@ -533,34 +530,28 @@
 <!-- 第3步：等待DWR初始化完成后加载应用脚本 -->
 <script type="text/javascript">
 function checkDWRAndLoadApp() {
-    console.log('检查DWR和依赖库状态...');
     
     // 检查所有必要的依赖
     if (typeof dwr === 'undefined') {
-        console.log('等待DWR引擎加载...');
         setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
     if (typeof DatabaseOperationJS === 'undefined') {
-        console.log('等待DatabaseOperationJS加载...');
         setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
     if (typeof Cesium === 'undefined') {
-        console.log('等待Cesium加载...');
         setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
     if (typeof $ === 'undefined') {
-        console.log('等待jQuery加载...');
         setTimeout(checkDWRAndLoadApp, 100);
         return;
     }
     
-    console.log('✅ 所有依赖已就绪，开始加载应用脚本...');
     
     // 动态加载应用脚本
     var scripts = [
@@ -578,14 +569,12 @@ function checkDWRAndLoadApp() {
     
     function loadScript(index) {
         if (index >= scripts.length) {
-            console.log('✅ 所有应用脚本加载完成');
             return;
         }
         
         var script = document.createElement('script');
         script.src = scripts[index];
         script.onload = function() {
-            console.log('✅ 已加载: ' + scripts[index]);
             loadScript(index + 1);
         };
         script.onerror = function() {
@@ -609,52 +598,32 @@ document.addEventListener('DOMContentLoaded', checkDWRAndLoadApp);
 
 // 立即检查面板元素
 setTimeout(() => {
-    console.log('🔍 检查面板元素是否存在...');
     const panel = document.getElementById('sidebar-right');
-    console.log('面板元素:', panel);
     
     if (panel) {
-        console.log('✅ 找到面板元素');
-        console.log('面板当前样式 - right:', panel.style.right);
-        console.log('面板当前样式 - display:', panel.style.display);
-        console.log('面板计算样式 - right:', window.getComputedStyle(panel).right);
-        console.log('面板计算样式 - display:', window.getComputedStyle(panel).display);
         
         // 检查子元素
         const contentArea = panel.querySelector('.content-area');
         const voyageContent = panel.querySelector('#voyage-content');
         const queryContent = panel.querySelector('#voyage-query-content');
         
-        console.log('内容区域:', contentArea ? '✅' : '❌');
-        console.log('航次内容:', voyageContent ? '✅' : '❌');
-        console.log('查询内容:', queryContent ? '✅' : '❌');
     } else {
-        console.log('❌ 未找到面板元素');
     }
 }, 3000);
 
 // 添加调试函数，可以从控制台手动调用
 window.debugPanelElements = function() {
-    console.log('=== 面板元素调试信息 ===');
     const panel = document.getElementById('sidebar-right');
-    console.log('主面板:', panel);
     
     if (panel) {
-        console.log('面板样式:', panel.getAttribute('style'));
-        console.log('面板类名:', panel.className);
         
         const children = panel.querySelectorAll('*');
-        console.log('子元素总数:', children.length);
         
         const contentArea = panel.querySelector('.content-area');
         const voyageContent = panel.querySelector('#voyage-content');
         const queryContent = panel.querySelector('#voyage-query-content');
         const queryTab = panel.querySelector('#voyage-query-tab');
         
-        console.log('内容区域:', contentArea);
-        console.log('航次内容:', voyageContent);
-        console.log('查询内容:', queryContent);
-        console.log('查询标签:', queryTab);
     }
 };
 

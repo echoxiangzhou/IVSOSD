@@ -15,7 +15,6 @@ if (typeof $ === 'undefined') {
     // Try to reload after a delay
     setTimeout(function() {
         if (typeof $ !== 'undefined') {
-            console.log('main.js: jQuery is now available, reloading...');
             location.reload();
         }
     }, 1000);
@@ -425,21 +424,17 @@ function OriginalAddAllRoute() {
         return;
     }
     
-    console.log('Calling DatabaseOperationJS.QueryVoyageList with SQL:', strSQLVoyAll);
     
     // 使用新的安全查询方法（基于test_db.html成功案例）
     try {
-        console.log('🛡️ 尝试使用安全航次查询方法...');
         
         // 优先使用新的安全方法
         if (typeof DatabaseOperationJS.queryVoyageListSafe === 'function') {
             DatabaseOperationJS.queryVoyageListSafe({
                 callback: function(result) {
-                    console.log('✅ 安全航次查询成功:', result);
                     
                     // 将字符串结果解析为航次数据
                     if (typeof result === 'string') {
-                        console.log('📋 解析安全查询返回的字符串数据...');
                         
                         // 解析字符串结果，提取航次信息
                         var voyageData = parseSafeQueryResult(result);
@@ -454,23 +449,19 @@ function OriginalAddAllRoute() {
                 }
             });
         } else {
-            console.log('⚠️ 安全查询方法不可用，使用原始方法...');
             tryOriginalQuery();
         }
         
         function tryOriginalQuery() {
             DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, 
                 function(data) {
-                    console.log('✅ 原始航次数据查询成功:', data);
                     callBackVoyageList(data);
                 },
                 function(error) {
                     console.error('❌ 原始航次数据查询失败:', error);
                     // Try with empty SQL to use default query
-                    console.log('🔄 尝试默认查询...');
                     DatabaseOperationJS.QueryVoyageList('', 
                         function(data) {
-                            console.log('✅ 默认查询成功:', data);
                             callBackVoyageList(data);
                         },
                         function(error2) {
@@ -495,11 +486,9 @@ function OriginalAddAllRoute() {
     if (!sTab1.hasClass('active')) {
         sTab1.addClass('active');
         content1.addClass('in');
-        console.log('✅ 手动设置sTab1为活动状态（避免清除影像）');
     }
     if (!voyagepage1.hasClass('active')) {
         voyagepage1.addClass('active');
-        console.log('✅ 手动设置voyagepage1为活动状态');
     }
     mapDiv.css('left', '0px');
     var mapWidth = document.body.clientWidth;
@@ -532,7 +521,6 @@ function QueryRouteClick() {
     const rightPanel = document.getElementById('sidebar-right');
     if (rightPanel && !rightPanel.classList.contains('active')) {
         rightPanel.classList.add('active');
-        console.log('✅ 查询时自动显示右侧面板');
     }
 
     clearTable("tbodyVoyageList");
@@ -567,11 +555,9 @@ function QueryRouteClick() {
     if (!sTab1.hasClass('active')) {
         sTab1.addClass('active');
         content1.addClass('in');
-        console.log('✅ 手动设置sTab1为活动状态（避免清除影像）');
     }
     if (!voyagepage1.hasClass('active')) {
         voyagepage1.addClass('active');
-        console.log('✅ 手动设置voyagepage1为活动状态');
     }
     //mapDiv.css('left', '320px');
     mapDiv.css('left', '0px');
@@ -617,7 +603,6 @@ var voyRowNumber = 15;
 var curPageNumber = 1;
 // 解析安全查询返回的字符串结果
 function parseSafeQueryResult(resultString) {
-    console.log('📋 解析安全查询结果:', resultString);
     
     var voyageList = [];
     
@@ -672,7 +657,6 @@ function parseSafeQueryResult(resultString) {
                     
                     if (voyageInfo.id) {
                         voyageList.push(voyageInfo);
-                        console.log('✅ 解析航次:', voyageInfo);
                     }
                 } catch (parseError) {
                     console.warn('⚠️ 解析航次行失败:', line, parseError);
@@ -680,7 +664,6 @@ function parseSafeQueryResult(resultString) {
             }
         }
         
-        console.log('📊 解析完成，共', voyageList.length, '条航次记录');
         
     } catch (error) {
         console.error('❌ 解析安全查询结果失败:', error);
@@ -690,7 +673,6 @@ function parseSafeQueryResult(resultString) {
 }
 
 var callBackVoyageList = function (voyageList) {
-    console.log('🚢 callBackVoyageList called with:', voyageList);
     
     // Add null check and error handling for voyageList
     if (!voyageList || !Array.isArray(voyageList)) {
@@ -711,7 +693,6 @@ var callBackVoyageList = function (voyageList) {
     
     voyageList2 = voyageList;
     var rowSumNumber = voyageList.length;
-    console.log('📊 Processing', rowSumNumber, 'voyage records');
     
     // 确保右侧面板显示
     showVoyagePanel();
@@ -794,8 +775,6 @@ var callBackVoyageList = function (voyageList) {
             continue;
         }
         
-        console.log('📊 处理航次列表项 ' + i + ':', voyageList[i]);
-        console.log('🔍 数据库字段名:', Object.keys(voyageList[i]));
         
         // 通用字段值获取函数
         const getFieldValue = (obj, ...fieldNames) => {
@@ -834,7 +813,6 @@ var callBackVoyageList = function (voyageList) {
         // 获取轨迹路径
         var trajPath = getFieldValue(voyageList[i], 'trajPath', 'TRAJ_PATH', 'traj_path', 'TrajPath') || '';
 
-        console.log('📊 航次数据提取结果:', {
             编号: voyageId,
             名称: voyageName,
             海域: seaAreaName,
@@ -1257,8 +1235,6 @@ function AddRouteCZML2(czmlURL, voyID) {
  */
 var callBackVoyageInfo = function (voyageInfo) {
     try {
-        console.log('📋 callBackVoyageInfo called with:', voyageInfo);
-        console.log('📋 voyageInfo详细内容:', JSON.stringify(voyageInfo, null, 2));
         
         // 数据验证
         if (!voyageInfo) {
@@ -1267,14 +1243,12 @@ var callBackVoyageInfo = function (voyageInfo) {
         }
         
         // 打印所有可用的属性名，用于调试
-        console.log('📋 voyageInfo可用属性:', Object.keys(voyageInfo));
         
         // 安全填充数据，添加空值检查和多种字段名映射
         const setElementText = (id, value) => {
             const element = document.getElementById(id);
             if (element) {
                 element.innerHTML = value || '暂无数据';
-                console.log(`✅ 设置 ${id}: ${value || '暂无数据'}`);
             } else {
                 console.warn(`⚠️ Element with ID '${id}' not found`);
             }
@@ -1320,8 +1294,6 @@ var callBackVoyageInfo = function (voyageInfo) {
         const project = getFieldValue(voyageInfo, 'project', 'PROJECT', 'Project');
         setElementText("ketibianhao", project);
         
-        console.log('✅ 航次信息填充完成');
-        console.log('📊 填充的数据摘要:', {
             编号: voyageId,
             名称: voyageName,
             开始: startDate,
@@ -2889,11 +2861,9 @@ function hanciclick() {
     if (!sTab1.hasClass('active')) {
         sTab1.addClass('active');
         content1.addClass('in');
-        console.log('✅ 手动设置sTab1为活动状态（避免清除影像）');
     }
     if (!voyagepage1.hasClass('active')) {
         voyagepage1.addClass('active');
-        console.log('✅ 手动设置voyagepage1为活动状态');
     }
     // 注释掉容器调整代码，防止地球移动
     // mapDiv.css('left', '320px');
@@ -2901,7 +2871,6 @@ function hanciclick() {
     // var mapWidth = document.body.clientWidth - 320;
     // var mapWidth = document.body.clientWidth;
     // mapDiv.css('width', mapWidth);
-    console.log('⚠️ 跳过地图容器调整，保持地球位置');
 
     //navBarLeft.addClass('open');
     sideBarRight.removeClass('active');
@@ -3474,7 +3443,6 @@ function removedatasource() {
 };
 
 function clearImageryLayers() {
-    console.log('🗑️ clearImageryLayers 被调用，当前图层数量:', viewer.imageryLayers.length);
     
     // 强制检查初始化状态
     if (!window.CESIUM_INITIALIZATION_COMPLETE) {
@@ -3498,9 +3466,7 @@ function clearImageryLayers() {
             if (!window.primaryImageryLayer.show) {
                 window.primaryImageryLayer.show = true;
                 viewer.scene.requestRender();
-                console.log('🔧 恢复基础影像图层可见性');
             }
-            console.log('✅ 基础影像图层状态正常');
         }
     } else {
         console.warn('⚠️ primaryImageryLayer引用丢失，立即恢复...');
@@ -3514,7 +3480,6 @@ function clearImageryLayers() {
 // 独立的基础影像图层恢复函数
 function restoreBaseImageryLayer() {
     try {
-        console.log('🔧 恢复基础影像图层...');
         
         // 如果没有任何影像图层，添加基础图层
         if (viewer.imageryLayers.length === 0) {
@@ -3529,7 +3494,6 @@ function restoreBaseImageryLayer() {
             window.primaryImageryLayer = newLayer;
             window.CESIUM_BASE_IMAGERY_PROTECTED = true;
             viewer.scene.requestRender();
-            console.log('✅ 基础影像图层已恢复');
         } else {
             // 检查现有图层是否为基础图层
             var foundBaseLayer = false;
@@ -3538,7 +3502,6 @@ function restoreBaseImageryLayer() {
                 if (layer._isBaseLayer || layer._cesiumProtected) {
                     window.primaryImageryLayer = layer;
                     foundBaseLayer = true;
-                    console.log('✅ 找到现有基础图层，重新设置引用');
                     break;
                 }
             }
@@ -3549,7 +3512,6 @@ function restoreBaseImageryLayer() {
                 firstLayer._cesiumProtected = true;
                 firstLayer._isBaseLayer = true;
                 window.primaryImageryLayer = firstLayer;
-                console.log('✅ 将第一个图层标记为基础图层');
             }
         }
         
@@ -3565,7 +3527,6 @@ function restoreBaseImageryLayer() {
  */
 var handlerShowCoor;
 function ShowBaseInfo() {
-    console.log('🏔️ === ShowBaseInfo函数开始执行 ===');
     
     // 在函数开始时调试地球状态
     if (typeof debugGlobeState === 'function') {
@@ -3575,24 +3536,20 @@ function ShowBaseInfo() {
     scene = viewer.scene;
     var globe = scene.globe;
     
-    console.log('🔍 ShowBaseInfo - 设置depthTestAgainstTerrain为false');
     globe.depthTestAgainstTerrain = false;
     
-    console.log('🏔️ ShowBaseInfo被调用，在地形切换前保护影像图层...');
     
     // 在地形提供者切换前保存当前影像图层状态
     var primaryLayerBackup = window.primaryImageryLayer;
     var hasValidPrimaryLayer = primaryLayerBackup && 
                               viewer.imageryLayers.indexOf(primaryLayerBackup) !== -1;
     
-    console.log('📊 当前影像图层状态:', {
         layerCount: viewer.imageryLayers.length,
         hasPrimaryLayer: !!primaryLayerBackup,
         primaryLayerValid: hasValidPrimaryLayer
     });
     
     // 记录地形切换前的详细状态
-    console.log('📊 地形切换前Globe状态:', {
         show: globe.show,
         baseColor: globe.baseColor.toString(),
         currentTerrainProvider: globe.terrainProvider.constructor.name,
@@ -3608,19 +3565,15 @@ function ShowBaseInfo() {
         });
         
         // 在Cesium 1.130中，直接设置terrain而不检查URL
-        console.log('🔄 即将设置地形提供者为 Data/terrain/terrain03');
-        console.log('📊 地形切换前最后状态检查:');
         if (typeof debugGlobeState === 'function') {
             debugGlobeState('地形切换前最后状态');
         }
         
         viewer.terrainProvider = cesiumTerrainProviderMeshes;
         
-        console.log('✅ 地形提供者已设置，新Provider:', cesiumTerrainProviderMeshes.constructor.name);
         
         // 地形切换后立即检查并恢复影像图层
         setTimeout(() => {
-            console.log('🔍 地形切换后检查影像图层状态...');
             
             // 详细调试地形切换后的状态
             if (typeof debugGlobeState === 'function') {
@@ -3631,13 +3584,11 @@ function ShowBaseInfo() {
             var primaryStillExists = window.primaryImageryLayer && 
                                    viewer.imageryLayers.indexOf(window.primaryImageryLayer) !== -1;
             
-            console.log('📊 地形切换后影像图层状态:', {
                 layerCount: currentLayerCount,
                 primaryStillExists: primaryStillExists
             });
             
             // 检查地球本身的状态
-            console.log('📊 地形切换后Globe状态:', {
                 show: globe.show,
                 baseColor: globe.baseColor.toString(),
                 newTerrainProvider: globe.terrainProvider.constructor.name,
@@ -3663,9 +3614,7 @@ function ShowBaseInfo() {
                 window.CESIUM_BASE_IMAGERY_PROTECTED = true;
                 
                 viewer.scene.requestRender();
-                console.log('✅ OpenStreetMap影像图层已在地形切换后恢复');
             } else {
-                console.log('✅ 影像图层在地形切换后保持完好');
                 
                 // 即使图层存在，也要检查其可见性和透明度
                 if (window.primaryImageryLayer) {
@@ -3673,7 +3622,6 @@ function ShowBaseInfo() {
                     var currentAlpha = window.primaryImageryLayer.alpha;
                     var isReady = window.primaryImageryLayer.ready;
                     
-                    console.log('🔍 详细检查影像图层状态:', {
                         show: currentShow,
                         alpha: currentAlpha,
                         ready: isReady,
@@ -3689,7 +3637,6 @@ function ShowBaseInfo() {
                         window.primaryImageryLayer.show = true;
                         window.primaryImageryLayer.alpha = 1.0;
                         viewer.scene.requestRender();
-                        console.log('🔧 强制恢复影像图层可见性完成');
                     }
                     
                     // 如果图层提供者有问题，强制替换
@@ -3712,7 +3659,6 @@ function ShowBaseInfo() {
                         
                         window.primaryImageryLayer = newOsmLayer;
                         viewer.scene.requestRender();
-                        console.log('✅ 强制替换OpenStreetMap图层完成');
                     }
                 }
             }
@@ -3738,19 +3684,16 @@ function ShowBaseInfo() {
                 osmLayer.alpha = 1.0;
                 window.primaryImageryLayer = osmLayer;
                 viewer.scene.requestRender();
-                console.log('✅ OpenStreetMap在默认地形设置后已恢复');
             }
         }, 50);
     }
     
-    console.log('✅ ShowBaseInfo执行完成，影像图层保护措施已到位');
     
     // ShowBaseInfo函数结束时的详细调试
     if (typeof debugGlobeState === 'function') {
         debugGlobeState('ShowBaseInfo函数结束');
     }
     
-    console.log('🏔️ === ShowBaseInfo函数执行完毕 ===');
 
     var scene = viewer.scene;
     var ellipsoid = scene.globe.ellipsoid;
@@ -3863,7 +3806,6 @@ function ShowBaseInfo() {
  * 安全版本的AddAllRoute函数 - 通过影像图层管理器保护基础图层
  */
 function AddAllRoute() {
-    console.log('🛡️ === 安全AddAllRoute函数开始执行 ===');
     
     try {
         // 确保影像图层管理器存在
@@ -3882,7 +3824,6 @@ function AddAllRoute() {
         if (window.imageryManager) {
             window.imageryManager.forceRestoreBaseImageryLayer();
             const statusBefore = window.imageryManager.getStatusReport();
-            console.log('📊 AddAllRoute执行前影像图层状态:', statusBefore);
         }
         
         // 执行数据库查询
@@ -3895,14 +3836,12 @@ function AddAllRoute() {
             return;
         }
         
-        console.log('🛡️ 安全调用DatabaseOperationJS.QueryVoyageList...');
         
         // 使用安全的错误处理
         try {
             // 采用 test_db.html 中成功的DWR调用方式（简单回调函数，而不是对象包装）
             DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, 
                 function(data) {
-                    console.log('📊 航次数据查询回调开始...', data);
                     
                     // 在回调中也要保护影像图层
                     if (window.imageryManager) {
@@ -3911,12 +3850,9 @@ function AddAllRoute() {
                     
                     // 数据验证和处理
                     if (data && Array.isArray(data) && data.length > 0) {
-                        console.log(`✅ 收到 ${data.length} 条航次数据`);
                         callBackVoyageList(data);
                     } else {
                         console.error('❌ 航次数据为空或格式错误，请检查数据库连接和数据');
-                        console.log('数据库连接信息: 192.168.101.38:1521:ORCL');
-                        console.log('请确保数据库中的VOYAGE表有数据');
                         // 显示数据库连接错误信息
                         const tbody = document.getElementById('tbodyVoyageList');
                         if (tbody) {
@@ -3928,7 +3864,6 @@ function AddAllRoute() {
                     setTimeout(() => {
                         if (window.imageryManager) {
                             const statusAfterCallback = window.imageryManager.getStatusReport();
-                            console.log('📊 航次回调后影像图层状态:', statusAfterCallback);
                             
                             if (!statusAfterCallback.baseLayerValid || !statusAfterCallback.baseLayerShow) {
                                 console.warn('⚠️ 航次回调影响了影像图层，强制恢复...');
@@ -3939,7 +3874,6 @@ function AddAllRoute() {
                 },
                 function(error) {
                     console.error('❌ DWR航次查询失败:', error);
-                    console.log('错误详情:', {
                         message: error.message,
                         type: error.type,
                         javaClassName: error.javaClassName
@@ -3963,11 +3897,9 @@ function AddAllRoute() {
                     }
                     
                     // 尝试默认查询
-                    console.log('🔄 尝试默认查询...');
                     try {
                         DatabaseOperationJS.QueryVoyageList('', 
                             function(data) {
-                                console.log('📊 默认查询回调:', data);
                                 if (window.imageryManager) {
                                     window.imageryManager.forceRestoreBaseImageryLayer();
                                 }
@@ -3999,25 +3931,21 @@ function AddAllRoute() {
         }
         
         // 安全设置UI状态（不触发可能的清理事件）
-        console.log('🎨 安全设置UI状态...');
         setUIStateSafely();
         
         // 执行后检查影像图层状态
         setTimeout(() => {
             if (window.imageryManager) {
                 const statusAfter = window.imageryManager.getStatusReport();
-                console.log('📊 AddAllRoute执行后影像图层状态:', statusAfter);
                 
                 if (!statusAfter.baseLayerValid || !statusAfter.baseLayerShow) {
                     console.warn('⚠️ AddAllRoute执行影响了影像图层，强制恢复...');
                     window.imageryManager.forceRestoreBaseImageryLayer();
                 } else {
-                    console.log('✅ AddAllRoute执行后影像图层状态正常');
                 }
             }
         }, 200);
         
-        console.log('✅ 安全AddAllRoute执行完成');
         
     } catch (error) {
         console.error('❌ 安全AddAllRoute执行失败:', error);
@@ -4031,7 +3959,6 @@ function AddAllRoute() {
         OriginalAddAllRoute();
     }
     
-    console.log('🛡️ === 安全AddAllRoute函数执行完毕 ===');
 }
 
 /**
@@ -4039,18 +3966,15 @@ function AddAllRoute() {
  */
 function setUIStateSafely() {
     try {
-        console.log('🎨 安全设置UI状态...');
         
         // 手动设置样式而不触发可能的清理事件
         if (!sTab1.hasClass('active')) {
             sTab1.addClass('active');
             content1.addClass('in');
-            console.log('✅ 手动设置sTab1为活动状态');
         }
         
         if (!voyagepage1.hasClass('active')) {
             voyagepage1.addClass('active');
-            console.log('✅ 手动设置voyagepage1为活动状态');
         }
         
         // 设置地图容器样式
@@ -4073,7 +3997,6 @@ function setUIStateSafely() {
         $('.map3d').addClass('active');
         $('.coorInfo').addClass('active');
         
-        console.log('✅ UI状态设置完成');
         
     } catch (error) {
         console.error('❌ UI状态设置失败:', error);
@@ -4085,7 +4008,6 @@ function setUIStateSafely() {
  */
 function showVoyagePanel() {
     try {
-        console.log('📱 显示右侧航次面板...');
         
         // 确保右侧边栏可见
         const sideBarRight = document.getElementById('sidebar-right');
@@ -4126,7 +4048,6 @@ function showVoyagePanel() {
             }
         });
         
-        console.log('✅ 右侧航次面板已显示');
         
     } catch (error) {
         console.error('❌ 显示航次面板失败:', error);
