@@ -2889,11 +2889,13 @@ function hanciclick() {
         voyagepage1.addClass('active');
         console.log('✅ 手动设置voyagepage1为活动状态');
     }
-    //mapDiv.css('left', '320px');
-    mapDiv.css('left', '0px');
-    //var mapWidth = document.body.clientWidth - 320;
-    var mapWidth = document.body.clientWidth;
-    mapDiv.css('width', mapWidth);
+    // 注释掉容器调整代码，防止地球移动
+    // mapDiv.css('left', '320px');
+    // mapDiv.css('left', '0px');
+    // var mapWidth = document.body.clientWidth - 320;
+    // var mapWidth = document.body.clientWidth;
+    // mapDiv.css('width', mapWidth);
+    console.log('⚠️ 跳过地图容器调整，保持地球位置');
 
     //navBarLeft.addClass('open');
     sideBarRight.removeClass('active');

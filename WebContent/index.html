@@ -20,6 +20,12 @@
           class="skinswitcher"/>
     <link type='text/css' rel='stylesheet' href="Apps/Sandcastle/templates/bucket.css">
     <link type='text/css' rel='stylesheet' href="css/style.css">
+    <link type='text/css' rel='stylesheet' href="css/override_black_backgrounds.css">
+    <link type='text/css' rel='stylesheet' href="css/new_panel_layout.css">
+    <link type='text/css' rel='stylesheet' href="css/panel_background_fix.css">
+    <link type='text/css' rel='stylesheet' href="css/force_panel_layout.css">
+    <link type='text/css' rel='stylesheet' href="css/final_panel_fix.css">
+    <link type='text/css' rel='stylesheet' href="css/fix_earth_shift.css">
 
 
     <style>
@@ -31,18 +37,128 @@
             padding: 0;
             overflow: hidden;
         }
+        
+        /* 强制显示面板的测试样式 */
+        #test-panel-btn {
+            position: fixed !important;
+            top: 10px !important;
+            left: 10px !important;
+            z-index: 99999 !important;
+            padding: 10px !important;
+            background: red !important;
+            color: white !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+        }
+        
+        #hide-panel-btn {
+            position: fixed !important;
+            top: 60px !important;
+            left: 10px !important;
+            z-index: 99999 !important;
+            padding: 10px !important;
+            background: blue !important;
+            color: white !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+        }
+        
+        /* 确保面板在active状态下显示 */
+        #sidebar-right.active {
+            right: 0 !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        .sidebar-new.active {
+            right: 0 !important;
+        }
     </style>
 
+    <script>
+        // 航次站点点击函数将由 new_panel_controller.js 提供
+        // 备用函数，防止脚本加载延迟
+        if (typeof window.openVoyagePanel === 'undefined') {
+            window.openVoyagePanel = function() {
+                console.log('🚢 使用备用函数打开航次面板');
+                // 等待脚本加载完成
+                const tryOpen = function() {
+                    if (typeof window.openVoyagePanel !== 'undefined' && window.openVoyagePanel !== tryOpen) {
+                        window.openVoyagePanel();
+                    } else {
+                        // 直接操作DOM
+                        const panel = document.getElementById('sidebar-right');
+                        if (panel) {
+                            panel.classList.add('active');
+                            panel.style.right = '0px';
+                            panel.style.display = 'flex';
+                            console.log('✅ 备用函数成功打开面板');
+                            
+                            // 延迟执行修复
+                            setTimeout(() => {
+                                if (typeof window.forcePanelContentFix === 'function') {
+                                    window.forcePanelContentFix();
+                                }
+                            }, 200);
+                        } else {
+                            setTimeout(tryOpen, 100);
+                        }
+                    }
+                };
+                tryOpen();
+            };
+        }
+        
+        // 其他页面级别的函数
+        function poumianclick() {
+            console.log('点击了剖面信息');
+        }
+        
+        function dixingclick() {
+            console.log('点击了海底地形');
+        }
+        
+        function yangliuclick() {
+            console.log('点击了洋流风场');
+        }
+    </script>
 
 </head>
 
 <body>
 
+<!-- 测试按钮 -->
+<button id="test-panel-btn" onclick="showTestPanel()">显示面板</button>
+<button id="hide-panel-btn" onclick="hideTestPanel()">隐藏面板</button>
+
+<script src="js/test_panel_functions.js"></script>
+<script>
+    // 确保函数立即可用
+    console.log('🔍 检查测试面板函数:', typeof showTestPanel, typeof hideTestPanel);
+    
+    // 如果函数未定义，提供备用函数
+    if (typeof showTestPanel === 'undefined') {
+        window.showTestPanel = function() {
+            console.error('❌ showTestPanel 函数未加载，请刷新页面');
+            alert('函数未加载，请刷新页面后重试');
+        };
+    }
+    
+    if (typeof hideTestPanel === 'undefined') {
+        window.hideTestPanel = function() {
+            console.error('❌ hideTestPanel 函数未加载，请刷新页面');
+        };
+    }
+</script>
+
 <div class="head">
     <div id="titlebg"></div>
     <div id="ship"></div>
 
-    <div class="nav-button1" onclick='hanciclick()'></div>
+    <div class="nav-button1" onclick='openVoyagePanel()' style="cursor: pointer;"></div>
     <div class="nav-title1">航次站点</div>
 
     <div class="nav-button2" onclick='poumianclick()'></div>
@@ -78,903 +194,183 @@
         <div id="2D" class='map2d'></div>
         <div id="3D" class='map3d'></div>
 
-        <div class='sidebar' id='sidebar-right'>
-            <img class='sidebar-close' src='images\side_close.png' alt='关闭'>
-            <div class='sidebar-tab'>
-                <div id='sidebar-tab1' class='active'>
-                    <p>航次站位</p>
-                </div>
-                <div id='sidebar-tab2'>
-                    <p>剖面信息</p>
-                </div>
-                <div id='sidebar-tab3'>
-                    <p>海底地形</p>
-                </div>
-                <div id='sidebar-tab4'>
-                    <p>流场模拟</p>
-                </div>
-            </div>
+        <!-- 面板关闭箭头（独立于面板） -->
+        <div class='panel-close-arrow' id='panel-close-arrow' style="position: fixed !important; right: -50px !important; top: 50% !important; transform: translateY(-50%) !important; width: 30px !important; height: 60px !important; background: red !important; border: 3px solid yellow !important; border-radius: 10px 0 0 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; z-index: 99999 !important; opacity: 1 !important; visibility: visible !important; transition: all 0.3s ease !important; box-shadow: -5px 0 10px rgba(0, 0, 0, 0.5) !important;">
+            <div class='arrow-icon' style="width: 0 !important; height: 0 !important; border-top: 10px solid transparent !important; border-bottom: 10px solid transparent !important; border-right: 12px solid white !important; opacity: 1 !important;"></div>
+        </div>
 
-            <div class='tab-content-box'>
-                <div id='sidebar-content1' class='tab-content-2 in'>
-                    <ul id="infoTabs1" class="nav nav-tabs" role="tablist"
-                        style="height: 36px;line-height: 16px; ">
-                        <li id="voyagepage1"><a id="voyage-info-tab1" class="voyage-info-tab1" data-toggle="tab"
-                        >航次查询 </a>
-                        </li>
-                        <li id="voyagepage2"><a id="voyage-info-tab2" class="voyage-info-tab2" data-toggle="tab"
-                        >航次信息 </a>
-                        </li>
-                        <li id="voyagepage3"><a id="voyage-info-tab3" class="voyage-info-tab3" data-toggle="tab"
-                        >站点信息 </a>
-                        </li>
-
-                    </ul>
-
-                    <div id="infoTabsContent1" class="infoTabs-content">
-                        <!--//航次信息-->
-                        <div id="voyage-info1" class="tab-pane fade active in">
-                            <div class='info-contents-10'>
-                                <!--style="background:url(images/bg1002.png) no-repeat center bottom;"-->
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">查询结果</div>
-                                    <table id="tblVoyageList"
-                                           class="table table-border table-bordered table-hover table-bg"
-                                           style="  color: #000000"
-                                    >
-
-
-                                        <thead class="text-c">
-                                        <tr style="height: 36px">
-                                            <!--<th style="width: 16px;text-align: center">ID</th>-->
-                                            <th style="width: 48px">编号</th>
+        <!-- 全新设计的右侧面板 -->
+        <div class='sidebar-new' id='sidebar-right' style="position: fixed !important; top: 125px !important; right: -450px !important; width: 450px !important; height: calc(100vh - 125px) !important; background-color: #ffffff !important; background: #ffffff !important; border-left: 2px solid #ddd !important; z-index: 9999 !important; display: flex !important; flex-direction: column !important; transform: none !important; transition: right 0.3s ease !important; box-shadow: -5px 0 15px rgba(0,0,0,0.3) !important;">
+            <!-- 内容区域 -->
+            <div class='content-area' style="flex: 1 !important; background-color: #ffffff !important; background: #ffffff !important; position: relative !important;">
+                <!-- 航次内容 -->
+                <div class='content-panel active' id='voyage-content' style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; background-color: #ffffff !important; background: #ffffff !important;">
+                    <!-- 子标签页 -->
+                    <div class='sub-tabs'>
+                        <div class='sub-tab active' id='voyage-query-tab' data-target='voyage-query-content'>航次查询</div>
+                        <div class='sub-tab' id='voyage-info-tab' data-target='voyage-info-content'>航次信息</div>
+                        <div class='sub-tab' id='station-info-tab' data-target='station-info-content'>站点信息</div>
+                    </div>
+                    
+                    <!-- 航次查询内容 -->
+                    <div class='sub-content active' id='voyage-query-content' style="display: block !important; flex: 1 !important; padding: 15px !important; background-color: #ffffff !important; background: #ffffff !important;">
+                        <div class='content-section'>
+                            <div class='section-header'>查询结果</div>
+                            <div class='table-container'>
+                                <table class='data-table' id='tblVoyageList'>
+                                    <thead>
+                                        <tr>
+                                            <th width="50">编号</th>
                                             <th>航次名称</th>
-                                            <th style="width: 80px">海域</th>
-                                            <th style="width: 100px">调查时间</th>
+                                            <th width="80">海域</th>
+                                            <th width="100">调查时间</th>
                                         </tr>
-                                        </thead>
-                                        <tbody id="tbodyVoyageList" class="text-c"
-                                               style="border-bottom: 2px;border-bottom-color: #00a8c6"></tbody>
-                                    </table>
-
-                                </div>
-                                <div style="margin-top: -16px;">
-                                    <button id="voyPre"
-                                            style="position: fixed; right: 60px;  width: 32px; height:32px;background-color:transparent;background-image: url(images/PreA02.png);border: transparent;border: none"
-                                            onclick="voyPagePrevious()">
-                                    </button>
-                                    <button id="voyNext"
-                                            style="position: fixed; right: 20px;width: 32px; height:32px;background-color:transparent; background-image: url(images/NextA02.png);border: transparent;border: none"
-                                            onclick="voyPageNext()">
-                                    </button>
-
-                                </div>
-
-
-                            </div>
-
-
-                        </div>
-
-                        <div id="voyage-info2" class="tab-pane fade">
-                            <div class='info-contents-10'>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">基本信息</div>
-                                    <table class="table table-bg ">
+                                    </thead>
+                                    <tbody id='tbodyVoyageList'>
                                         <tr>
-                                            <td class="voyagebaseinfo">航次编号:</td>
-                                            <td style="text-align: left"><span id="hangcibianhao"
-                                            ></span></td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">航次名称:</td>
-                                            <td style="text-align: left"><span id="hangcimingcheng"
-                                            ></span></td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">开始日期:</td>
-                                            <td style="text-align: left"><span id="kaishiriqi"
-                                            ></span></td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">结束日期:</td>
-                                            <td style="text-align: left"><span id="jieshuriqi"
-                                            ></span></td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">首席科学家:</td>
-                                            <td style="text-align: left"><span id="kexuejia"
-                                            ></span></td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">调查海区:</td>
-                                            <td style="text-align: left">
-                                        <span id="diaochahaiyu"
-                                        ></span>
+                                            <td colspan="4" class="empty-state">
+                                                <div class="empty-message">
+                                                    <i class="icon-ship"></i>
+                                                    <p>请选择航次类别并点击查询按钮</p>
+                                                </div>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td class="voyagebaseinfo">来源项目/课题编号:</td>
-                                            <td style="text-align: left"> <span id="ketibianhao"
-                                            ></span></td>
-                                        </tr>
-
-                                    </table>
-
-                                </div>
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">站点列表</div>
-
-                                    <table id="tblStationList"
-                                           class="table table-border table-bordered table-hover table-bg">
-                                        <!--<table >-->
-
-                                        <!--<thead class="text-c">-->
-                                        <thead style=" text-align:center">
-                                        <tr style=" text-align:center">
-                                            <th data-field="name" style="width: auto;  text-align:center">站点</th>
-                                            <th data-field="longitude" style="text-align:center">经度（度）</th>
-                                            <th data-field="latitude" style="text-align:center">纬度（度）</th>
-                                            <th style="text-align:center; " data-field="deep">水深（米）</th>
-                                            <!--<th>日期</th>-->
-
-                                        </tr>
-                                        </thead>
-                                        <tbody id="tbodyStationList"
-                                               class="text-c"></tbody>
-
-                                    </table>
-
-
-                                </div>
-
-
-                                <div style="margin-top: -16px;">
-                                    <button id="staPre" onclick="staPagePrevious()"></button>
-                                    <button id="staNext" onclick="staPageNext()"></button>
-
-                                </div>
-
-
-                            </div>
-
-                        </div>
-
-                        <div id="voyage-info3" class="tab-pane fade">
-                            <div class='info-contents-10' style="">
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">基本信息</div>
-
-                                    <table class="table table-bg">
-                                        <tr>
-                                            <td class="stationbaseinfo" style="width:112px; ">
-                                                编&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号&nbsp;&nbsp;&nbsp;:
-                                            </td>
-                                            <td style="text-align: left"><span
-                                                    id="zhandian" class='info-span-3'></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                经&nbsp;&nbsp;&nbsp;&nbsp;度（度）:
-                                            </td>
-                                            <td style="text-align: left"> <span
-                                                    id="jingdu" class='info-span-4'></span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                纬&nbsp;&nbsp;&nbsp;&nbsp;度（度）:
-                                            </td>
-                                            <td style="text-align: left"> <span
-                                                    id="weidu" class='info-span-5'></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                水&nbsp;&nbsp;&nbsp;&nbsp;深（米）:
-                                            </td>
-                                            <td style="text-align: left"><span
-                                                    id="shuishen" class='info-span-6'></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                日&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;期&nbsp;&nbsp;&nbsp;:
-                                            </td>
-                                            <td style="text-align: left">  <span
-                                                    id="riqi" class='info-span-6'></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                航&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;:
-                                            </td>
-                                            <td style="text-align: left"> <span
-                                                    id="hangci" class='info-span-6'></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="stationbaseinfo">
-                                                站&nbsp;&nbsp;点&nbsp;类&nbsp;型&nbsp;&nbsp;&nbsp;:
-                                            </td>
-                                            <td style="text-align: left"><span
-                                                    id="haiqu" class='info-span-6'></span></td>
-                                        </tr>
-
-                                    </table>
-                                </div>
-
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">观测信息</div>
-                                    <div id="point-profile" class='barchart-box'>
-                                        <select onchange="updateView()" id="yValue">
-                                            <!--<option value="Pressure">Pressure</option>-->
-                                            <option value="Temperature">温度</option>
-                                            <option value="Salinity">盐度</option>
-
-                                        </select>
-                                        <div id='pointChart'></div>
-
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-
-
-                        <div id="station-info3" class="tab-pane fade">
-                            <div class='info-contents-10'>
-                                <table class="table table-bg" style="  ">
-
-                                    <tr>
-                                        <td>经度范围</td>
-                                        <td style="width: 80%">
-                                            <div class="input-group">
-                                                <input type="text" class="input-sm form-control"
-                                                       id="HeatLonMin"/>
-                                                <span class="input-group-addon">to</span>
-                                                <input type="text" class="input-sm form-control"
-                                                       id="HeatLonMax"
-                                                />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>纬度范围</td>
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" class="input-sm form-control"
-                                                       id="HeatLatMin"/> <span
-                                                    class="input-group-addon">to</span> <input type="text"
-                                                                                               class="input-sm form-control"
-                                                                                               id="HeatLatMax"
-                                            />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>时间范围</td>
-                                        <td>
-                                            <div class="input-daterange input-group" id="datepickerheat">
-                                                <input type="text" class="input-sm form-control"
-                                                       name="start" id="heatstartdate" value="2012-04-05"
-                                                /> <span
-                                                    class="input-group-addon">to</span>
-                                                <input type="text" class="input-sm form-control" name="end"
-                                                       id="heatenddate" value="2016-04-05"/>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td style="text-align: center" colspan="2">
-                                            <button id="SearchHeat" class="btn btn-success"
-                                                    style="border: none; border-color:#0a6999  ;border-radius: 4px">确定
-                                            </button>
-                                            <button id="ClearHeatMap" class="btn btn-success"
-                                                    style="border: none; border-color:#0a6999  ;border-radius: 4px"
-                                                    onclick="clearImageryLayers()">清除
-                                            </button>
-
-                                        </td>
-                                    </tr>
+                                    </tbody>
                                 </table>
-
                             </div>
-
+                            <div class='pagination-controls'>
+                                <button class='page-btn' id='voyPre' onclick='voyPagePrevious()'>‹</button>
+                                <button class='page-btn' id='voyNext' onclick='voyPageNext()'>›</button>
+                            </div>
                         </div>
-
-
                     </div>
-
-
-                </div>
-
-                <div id='sidebar-content2' class='tab-content-2'>
-                    <ul id="infoTabs2" class="nav nav-tabs" role="tablist"
-                        style="height: 36px;line-height: 16px; ">
-                        <li class="active" id="page5"><a href="#profile-info1" id="profile-info1-tab"
-                                                         class="voyage-info-tab1" data-toggle="tab"
-                                                         controls="profile-info1"
-                                                         style="width: 150px;">大面展示</a>
-                        </li>
-                        <li id="page6"><a href="#profile-info2" id="profile-info2-tab"
-                                          class="voyage-info-tab2" data-toggle="tab" controls="profile-info2"
-                                          style="width: 150px;">三维剖面</a>
-                        </li>
-                        <li id="page7"><a href="#profile-info3" id="profile-info3-tab"
-                                          class="voyage-info-tab3" data-toggle="tab" controls="profile-info3"
-                                          style="width: 150px;">时间序列</a>
-                        </li>
-                    </ul>
-
-                    <div id="infoTabsContent2" class="infoTabs-content">
-                        <div id="profile-info1" class="tab-pane fade active in">
-                            <div class='info-contents-10' style="">
-                                <!--<div id="info1" class="tab-pane fade active in">-->
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">展示条件</div>
-                                    <table class="table table-bg " style="   ">
-                                        <tr>
-                                            <td style="padding-left: 14px ;padding-top: 16px;text-align: left"
-                                                colspan="2" width="120px">
-                                                海&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;域：<br/>
-                                            </td>
-                                            <td>
-                                                <select id="DaMianSeas">
-                                                    <option value="temperature">西太平洋</option>
-
-                                                </select>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding-left: 14px;text-align: left;padding-top: 16px;"
-                                                colspan="2">
-                                                海洋要素： <br/>
-                                            </td>
-                                            <td style="width: 80%">
-                                                <select id="DaMianFeatures">
-                                                    <option value="temperature">温度</option>
-                                                    <!--<option value="salinity">盐度</option>-->
-                                                </select>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left" colspan="2">
-                                                <div style='padding-left: 6px ;top: 28px;padding-top: 10px;'>
-                                                    时&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;间： <br/>
-                                                </div>
-
-                                            </td>
-                                            <td>
-                                                <select onchange="" id="DaMianSelect">
-                                                    <option value="2008年01月">2008年01月</option>
-                                                    <option value="2008年02月">2008年02月</option>
-                                                    <option value="2008年03月">2008年03月</option>
-                                                    <option value="2008年04月">2008年04月</option>
-                                                    <option value="2008年05月">2008年05月</option>
-                                                    <option value="2008年06月">2008年06月</option>
-                                                    <option value="2008年07月">2008年07月</option>
-                                                    <option value="2008年08月">2008年08月</option>
-                                                    <option value="2008年09月">2008年09月</option>
-                                                    <option value="2008年10月">2008年10月</option>
-                                                    <option value="2008年11月">2008年11月</option>
-                                                    <option value="2008年12月">2008年12月</option>
-
-                                                </select>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style="text-align: center" colspan="3">
-                                                <button id="btnDaMianOK" class="btn btn-success"
-                                                        style=""
-                                                        onclick="loadDaMian()">
-                                                    确定
-                                                </button>
-                                                <button id="btnDaMianCancel" onclick="DaMianCancle()"
-                                                        class="btn btn-success"
-                                                        style="">
-                                                    清除
-                                                </button>
-
-                                            </td>
-                                        </tr>
-
-                                    </table>
+                    
+                    <!-- 航次信息内容 -->
+                    <div class='sub-content' id='voyage-info-content'>
+                        <div class='content-section'>
+                            <div class='section-header'>基本信息</div>
+                            <div class='info-table'>
+                                <div class='info-row'>
+                                    <div class='info-label'>航次编号:</div>
+                                    <div class='info-value' id='hangcibianhao'>-</div>
                                 </div>
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">图例</div>
-                                    <table class="table table-bg ">
-                                        <tr>
-
-                                            <div id="damianLegend">
-                                                <img src='images\tempLegend.png'>
-                                                <lable id="DaMianTempMin"
-                                                       style='margin-left:5px; '></lable>
-                                                <lable id="DaMianTempMax"
-                                                       style='margin-left:320px; '></lable>
-                                            </div>
-                                        </tr>
-
-                                    </table>
+                                <div class='info-row'>
+                                    <div class='info-label'>航次名称:</div>
+                                    <div class='info-value' id='hangcimingcheng'>-</div>
                                 </div>
-
-                                <!--</div>-->
+                                <div class='info-row'>
+                                    <div class='info-label'>开始日期:</div>
+                                    <div class='info-value' id='kaishiriqi'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>结束日期:</div>
+                                    <div class='info-value' id='jieshuriqi'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>首席科学家:</div>
+                                    <div class='info-value' id='kexuejia'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>调查海区:</div>
+                                    <div class='info-value' id='diaochahaiyu'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>项目编号:</div>
+                                    <div class='info-value' id='ketibianhao'>-</div>
+                                </div>
                             </div>
                         </div>
-
-
-                        <div id="profile-info2" class="tab-pane fade ">
-                            <div class='info-contents-10' style="">
-                                <!--<div id="info2" class="tab-pane fade active in">-->
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">展示条件</div>
-                                    <table class="table table-bg " style="   ">
+                        
+                        <div class='content-section'>
+                            <div class='section-header'>站点列表</div>
+                            <div class='table-container'>
+                                <table class='data-table' id='tblStationList'>
+                                    <thead>
                                         <tr>
-                                            <td style="text-align: left;top: 30px;padding-left: 10px"
-                                                colspan="2">坐标范围：
-                                            </td>
-                                            <td>
-                                                <lable
-                                                        style='left:45px; margin-top:30px; '>
-                                                    北：
-                                                </lable>
-                                                <input id="profTop"
-                                                       value="30"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px; background-color: transparent;'>
-                                                    °(-90°~90°)
-                                                </lable>
-                                                <br/> <br/>
-                                                <lable
-                                                        style='margin-left:0px; '>
-                                                    西：
-                                                </lable>
-                                                <input id="profLeft"
-                                                       value="120"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px;background-color: transparent;'>
-                                                    °(-180°~180°)
-                                                </lable>
-                                                <lable
-                                                        style='margin-left:20px; '>
-                                                    东：
-                                                </lable>
-                                                <input id="profRight"
-                                                       value="130"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px;background-color: transparent;'>
-                                                    °(-180°~180°)
-                                                </lable>
-                                                <br/> <br/>
-                                                <lable
-                                                        style='left:45px; '>
-                                                    南：
-                                                </lable>
-
-                                                <input id="profBottom"
-                                                       value="20"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px; background-color: transparent;'>
-                                                    °(-90°~90°)
-                                                </lable>
-
-                                            </td>
+                                            <th>站点</th>
+                                            <th>经度（度）</th>
+                                            <th>纬度（度）</th>
+                                            <th>水深（米）</th>
                                         </tr>
-
+                                    </thead>
+                                    <tbody id='tbodyStationList'>
                                         <tr>
-                                            <td style="text-align: left;top: 30px;padding-left: 10px"
-                                                colspan="2">深度范围：
-                                            </td>
-                                            <td style="text-align: left;top: 30px;padding-left: 10px">
-
-                                                <lable
-                                                        style='margin-left:0px; '>
-                                                    浅：
-                                                </lable>
-                                                <input id="profDeepTop"
-                                                       value="0"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px;background-color: transparent;'>
-                                                    (米)
-                                                </lable>
-                                                <lable
-                                                        style='margin-left:80px; '>
-                                                    深：
-                                                </lable>
-                                                <input id="profDeepBottom"
-                                                       value="1500"
-                                                       onchange="profRangeChange()">
-                                                </input>
-                                                <lable
-                                                        style='margin-left:5px; margin-top:30px;background-color: transparent;'>
-                                                    (米)
-                                                </lable>
-                                                <br/>
-                                            </td>
-                                        </tr>
-
-
-                                        <tr>
-                                            <td style="text-align: left;padding-top: 16px;padding-left: 10px;"
-                                                colspan="2">
-                                                剖面类型： <br/>
-                                            </td>
-                                            <td>
-                                                <select onchange="profTypeChange()" id="profType">
-                                                    <option value="Longitude">经度剖面</option>
-                                                    <option value="Latitude">纬度剖面</option>
-                                                    <option value="Deep">深度剖面</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style="text-align: left;padding-top: 16px;padding-left: 10px"
-                                                colspan="2">
-                                                <div>
-                                                    剖面位置： <br/>
+                                            <td colspan="4" class="empty-state">
+                                                <div class="empty-message">
+                                                    <p>请先选择航次</p>
                                                 </div>
-
-                                            </td>
-                                            <td>
-                                                <br/> <br/>
-
-                                                <input id="sliderProfLoca" data-slider-id='ex1Slider' type="text"
-                                                       data-slider-step="0.1"
-                                                       data-slider-tooltip="always"
-                                                       data-slider-natural_arrow_keys="true"
-                                                       style="margin-left: 12px; width: 100%;"
-                                                />
-                                                <br/> <br/>
                                             </td>
                                         </tr>
-
-
-                                        <tr>
-                                            <td style="text-align: center" colspan="3">
-                                                <button id="btn3DProfileOK" class="btn btn-success"
-                                                        style="border: none; border-color:#0a6999  ;border-radius: 4px"
-                                                        onclick="sendParameters()">
-                                                    确定
-                                                </button>
-                                                <button id="btn3DProfileCancel" class="btn btn-success"
-                                                        style="border: none; border-color:#0a6999  ;border-radius: 4px"
-                                                        onclick="ClearProf()">清除
-                                                </button>
-
-                                            </td>
-                                        </tr>
-
-                                    </table>
-                                </div>
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">图例</div>
-                                    <table class="table table-bg ">
-                                        <tr>
-                                            <div id="proLegend"
-                                                 style="">
-                                                <td>
-                                                    <img src='images\tempLegend.png'>
-                                                    <lable id="profLengMin"
-                                                           style='margin-left:5px;  '></lable>
-                                                    <lable id="profLengMax"
-                                                           style='margin-left:340px;  '></lable>
-                                                </td>
-                                            </div>
-                                        </tr>
-
-                                    </table>
-
-                                </div>
-                                <!--</div>-->
-
-
+                                    </tbody>
+                                </table>
                             </div>
-
                         </div>
-
-                        <div id="profile-info3" class="tab-pane fade">
-                            <div class='info-contents-10' style="">
-                                <!--<div id="info3" class="tab-pane fade active in">-->
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">展示条件</div>
-                                    <table class="table table-bg "
-                                           style=" vertical-align: middle;  ">
-                                        <tr>
-                                            <td style="padding-left: 14px ;padding-top:16px;text-align: left"
-                                                colspan="2" width="120px">
-                                                海&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;域：<br/>
-                                            </td>
-                                            <td>
-                                                <select id="DaMianTimeSeas">
-                                                    <option value="temperature">西太</option>
-                                                </select>
-
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style="padding-left: 14px;text-align: left;padding-top: 16px;"
-                                                colspan="2">
-                                                海洋要素： <br/>
-                                            </td>
-                                            <td style="width: 80%">
-                                                <select id="DaMianFeaturesTime">
-                                                    <option value="temperatureTime">温度</option>
-                                                    <!--<option value="temperatureTime">盐度</option>-->
-                                                </select>
-
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style="text-align: left; ;padding-left: 14px;padding-top:16px;right: 10px;"
-                                                colspan="2">
-                                                时&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;间：
-                                            </td>
-                                            <td>
-                                                <!--<div class="input-daterange input-group" id="datepickerTime"-->
-                                                <div class="input-group" id="datepickerTime"
-                                                     style="width: 320px;left: 7px;">
-                                                    <input type="text" class="input-sm form-control"
-                                                           name="start" id="startdateTime" value="2008-01-01"
-                                                    /> <span
-                                                        class="input-group-addon">to</span>
-                                                    <input type="text" class="input-sm form-control" name="end"
-                                                           id="enddateTime" value="2008-12-31"/>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td style="text-align: center" colspan="3">
-                                                <button id="btnTimeSeriOK" class="btn btn-success"
-                                                        onclick="StartDynamicMaps()">确定
-                                                </button>
-                                                <button id="btnTimeSeriCancel" class="btn btn-success"
-                                                        onclick="ClearDynaMaps()">清除
-                                                </button>
-
-                                            </td>
-                                        </tr>
-
-                                    </table>
+                    </div>
+                    
+                    <!-- 站点信息内容 -->
+                    <div class='sub-content' id='station-info-content'>
+                        <div class='content-section'>
+                            <div class='section-header'>站点基本信息</div>
+                            <div class='info-table'>
+                                <div class='info-row'>
+                                    <div class='info-label'>编号:</div>
+                                    <div class='info-value' id='zhandian'>-</div>
                                 </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">图例</div>
-                                    <table class="table table-bg ">
-                                        <tr>
-                                            <div id="timeLegend">
-                                                <img src='images\tempLegend.png'>
-                                                <lable id="profLengMinTime"
-                                                       style='margin-left:5px;'></lable>
-                                                <lable id="profLengMaxTime"
-                                                       style='margin-left:320px;  '></lable>
-                                            </div>
-
-                                        </tr>
-
-                                    </table>
-
-
+                                <div class='info-row'>
+                                    <div class='info-label'>经度（度）:</div>
+                                    <div class='info-value' id='jingdu'>-</div>
                                 </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">时间</div>
-                                    <label id="lblSeriesTime">海洋要素所处时段：</label>
-                                    <table class="table table-bg ">
-                                        <tr>
-                                            <div id=""
-                                                 style="padding-left: 14px;width: 432px;display: none">
-
-
-                                            </div>
-
-                                        </tr>
-
-                                    </table>
+                                <div class='info-row'>
+                                    <div class='info-label'>纬度（度）:</div>
+                                    <div class='info-value' id='weidu'>-</div>
                                 </div>
-                                <!--</div>-->
+                                <div class='info-row'>
+                                    <div class='info-label'>水深（米）:</div>
+                                    <div class='info-value' id='shuishen'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>日期:</div>
+                                    <div class='info-value' id='riqi'>-</div>
+                                </div>
+                                <div class='info-row'>
+                                    <div class='info-label'>航次:</div>
+                                    <div class='info-value' id='hangci'>-</div>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <div class='content-section'>
+                            <div class='section-header'>观测信息</div>
+                            <div class='chart-controls'>
+                                <select id='yValue' onchange='updateView()'>
+                                    <option value='Temperature'>温度</option>
+                                    <option value='Salinity'>盐度</option>
+                                </select>
+                            </div>
+                            <div class='chart-container' id='pointChart'></div>
                         </div>
                     </div>
                 </div>
 
-                <div id='sidebar-content3' class='tab-content-2'>
-                    <ul id="infoTabs3" class="nav nav-tabs" role="tablist"
-                        style="height: 36px;line-height: 16px; ">
-                        <li class="active" id="page8"><a href="#terrain-info1"
-                                                         class="terrain-info1-tab" id="terrain-info1-tab"
-                                                         data-toggle="tab"
-                                                         controls="terrain-info1"
-                                                         style="width: 225px;">地形渲染</a></li>
-                        <li id="page9"><a href="#terrain-info2"
-                                          class="terrain-info2-tab" id="terrain-info2-tab" data-toggle="tab"
-                                          controls="terrain-info2"
-                                          style="width: 225px;">地形剖面</a></li>
-
-                    </ul>
-
-                    <div id="infoTabsContent3" class="infoTabs-content">
-                        <div id="terrain-info1" class="tab-pane fade active in">
-                            <div class='info-contents-10' style="">
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">区域选择</div>
-                                    <table class="table table-bg " style="  ">
-                                        <tr>
-                                            <td style="width:80px; text-align:left;padding-top: 16px;">
-                                                区&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;域：
-                                            </td>
-                                            <td>
-                                                <select id="TerrainPoint">
-                                                    <option value="global01">全球（etopo1_ice）</option>
-                                                    <option value="global02">全球（etopo1_new）</option>
-                                                    <option value="maliyana">马里亚纳海沟</option>
-                                                    <option value="chongsheng">冲绳海槽</option>
-
-                                                </select></td>
-                                        </tr>
-                                        <tr>
-                                        <tr>
-                                            <td style="width:80px; text-align:left;padding-top: 16px;">
-                                                区域简介：
-                                            </td>
-                                            </td>
-                                            <td id="ZoneIntroduce">
-                                                全球数字高程模型渲染
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center" colspan="2">
-                                                <button id="SearchTerrain" class="btn btn-success">
-                                                    漫游
-                                                </button>
-                                                <button id="StopTerrain" class="btn btn-success">
-                                                    停止
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">图例</div>
-                                    <table class="table table-bg ">
-                                        <tr>
-                                            <div id="terrLegend">
-                                                <td>
-                                                    <img id="imgTerLeg" src='images\terLegGLB01.png'>
-                                                    <lable id="terLegMin"
-                                                           style='margin-left:5px;  '>-10977
-                                                    </lable>
-                                                    <lable id="terLegMax"
-                                                           style='margin-left:340px;  '>8848
-                                                    </lable>
-                                                    <lable id="terLegUni"
-                                                           style='margin-left:10px; margin-top: 24px '>海拔(米)
-                                                    </lable>
-                                                </td>
-                                            </div>
-                                        </tr>
-
-                                    </table>
-
-                                </div>
-
-
-                            </div>
-                        </div>
-
-                        <div id="terrain-info2" class="tab-pane fade ">
-                            <div class='info-contents-10' style="">
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">绘制工具</div>
-                                    <table class="table table-bg " style="  ">
-                                        <tr>
-                                            <td style="text-align: center" colspan="2">
-                                                <button id="drawline" class="btn btn-success"
-                                                        onclick="dixingdrawline()">
-                                                    路径选择
-                                                </button>
-                                                <button id="clearline" class="btn btn-success"
-                                                        onclick="removedrawline()">
-                                                    清&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;除
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">地形剖面</div>
-                                    <div id='polylineChart'></div>
-                                </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">使用说明</div>
-                                    <table class="table table-bg ">
-                                        <tr>
-                                            <td style="text-align: left" colspan="2">
-                                                此功能的操作方法是首先点击"路径选择"按钮，将鼠标移动到地球上。然后按住shift键的同时，移动鼠标就可以画线，放开shift健结束绘制。（绘制时不要点击鼠标，因为鼠标的左中右键按下都是在操作球体）。
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
+                <!-- 其他内容面板 -->
+                <div class='content-panel' id='profile-content'>
+                    <div class='content-section'>
+                        <div class='section-header'>剖面信息</div>
+                        <p>剖面信息功能区域</p>
                     </div>
-
-
                 </div>
 
-                <div id='sidebar-content4' class='tab-content-2'>
-                    <ul id="infoTabs4" class="nav nav-tabs" role="tablist"
-                        style="height: 36px;line-height: 16px; ">
-                        <li class="active" id="pagecurrent1"><a href="#current-info1"
-                                                                class="terrain-info1-tab" id="current-info-tab1"
-                                                                data-toggle="tab"
-                                                                controls="current-info1">洋流模拟 </a>
-                        </li>
-                        <li id="pagecurrent2"><a href="#current-info2"
-                                                 class="terrain-info2-tab" id="current-info-tab2" data-toggle="tab"
-                                                 controls="current-info2">风场模拟 </a></li>
-                    </ul>
+                <div class='content-panel' id='terrain-content'>
+                    <div class='content-section'>
+                        <div class='section-header'>海底地形</div>
+                        <p>海底地形功能区域</p>
+                    </div>
+                </div>
 
-                    <div id="infoTabsContent4" class="infoTabs-content active in">
-                        <div id="current-info1" class="tab-pane fade active in">
-                            <div class='info-contents-10'>
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">模拟控制</div>
-                                    <table class="table table-bg "
-                                           style="display:none;margin-top: 12px;  ">
-                                        <tr>
-                                            <td style="text-align: center" colspan="2">
-                                                <button id="btnCurrStart" class="btn btn-success"
-                                                        onclick="StartCurrentField()">开始
-                                                </button>
-                                                <button id="btnCurrClear"
-                                                        class="btn btn-success"
-                                                        onclick="ClearCurrentField()">清除
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div id="current-info2" class="tab-pane fade active in">
-                            <div class='info-contents-10'>
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">模拟控制</div>
-
-                                </div>
-                            </div>
-                        </div>
+                <div class='content-panel' id='current-content'>
+                    <div class='content-section'>
+                        <div class='section-header'>流场模拟</div>
+                        <p>流场模拟功能区域</p>
                     </div>
                 </div>
             </div>
@@ -1140,6 +536,9 @@
 <script type='text/javascript' src="ThirdParty/bootstrap-table/src/bootstrap-table.js"></script>
 <script type='text/javascript' src="ThirdParty/bootstrapslider/bootstrap-slider.js"></script>
 
+<!-- 立即加载测试面板函数 -->
+<script type='text/javascript' src="js/test_panel_functions.js"></script>
+
 <!-- 第3步：等待DWR初始化完成后加载应用脚本 -->
 <script type="text/javascript">
 function checkDWRAndLoadApp() {
@@ -1176,6 +575,10 @@ function checkDWRAndLoadApp() {
     var scripts = [
         'js/initial.js?v=' + Date.now(),
         'js/main.js?v=' + Date.now(),
+        'js/new_panel_controller.js?v=' + Date.now(),
+        'js/navigation_enhanced.js?v=' + Date.now(),
+        'js/panel_fixes_combined.js?v=' + Date.now(),
+        'js/debug_panel_content.js?v=' + Date.now(),
         'js/terrain.js?v=' + Date.now(),
         'js/profile.js?v=' + Date.now(),
         'js/stationinfo.js?v=' + Date.now(),
@@ -1204,8 +607,66 @@ function checkDWRAndLoadApp() {
     loadScript(0);
 }
 
+// 面板控制函数已移至 js/test_panel_functions.js
+// 这里保留注释以供参考
+
+// 关闭箭头事件绑定已移至 js/test_panel_functions.js
+
+
 // 页面DOM加载完成后开始检查
 document.addEventListener('DOMContentLoaded', checkDWRAndLoadApp);
+
+// 立即检查面板元素
+setTimeout(() => {
+    console.log('🔍 检查面板元素是否存在...');
+    const panel = document.getElementById('sidebar-right');
+    console.log('面板元素:', panel);
+    
+    if (panel) {
+        console.log('✅ 找到面板元素');
+        console.log('面板当前样式 - right:', panel.style.right);
+        console.log('面板当前样式 - display:', panel.style.display);
+        console.log('面板计算样式 - right:', window.getComputedStyle(panel).right);
+        console.log('面板计算样式 - display:', window.getComputedStyle(panel).display);
+        
+        // 检查子元素
+        const contentArea = panel.querySelector('.content-area');
+        const voyageContent = panel.querySelector('#voyage-content');
+        const queryContent = panel.querySelector('#voyage-query-content');
+        
+        console.log('内容区域:', contentArea ? '✅' : '❌');
+        console.log('航次内容:', voyageContent ? '✅' : '❌');
+        console.log('查询内容:', queryContent ? '✅' : '❌');
+    } else {
+        console.log('❌ 未找到面板元素');
+    }
+}, 3000);
+
+// 添加调试函数，可以从控制台手动调用
+window.debugPanelElements = function() {
+    console.log('=== 面板元素调试信息 ===');
+    const panel = document.getElementById('sidebar-right');
+    console.log('主面板:', panel);
+    
+    if (panel) {
+        console.log('面板样式:', panel.getAttribute('style'));
+        console.log('面板类名:', panel.className);
+        
+        const children = panel.querySelectorAll('*');
+        console.log('子元素总数:', children.length);
+        
+        const contentArea = panel.querySelector('.content-area');
+        const voyageContent = panel.querySelector('#voyage-content');
+        const queryContent = panel.querySelector('#voyage-query-content');
+        const queryTab = panel.querySelector('#voyage-query-tab');
+        
+        console.log('内容区域:', contentArea);
+        console.log('航次内容:', voyageContent);
+        console.log('查询内容:', queryContent);
+        console.log('查询标签:', queryTab);
+    }
+};
+
 </script>
 
 </body>
