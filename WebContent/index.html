@@ -130,11 +130,6 @@
 
 <body>
 
-<!-- 测试按钮 -->
-<button id="test-panel-btn" onclick="showTestPanel()">显示面板</button>
-<button id="hide-panel-btn" onclick="hideTestPanel()">隐藏面板</button>
-
-<script src="js/test_panel_functions.js"></script>
 <script>
     // 确保函数立即可用
     console.log('🔍 检查测试面板函数:', typeof showTestPanel, typeof hideTestPanel);
@@ -194,10 +189,6 @@
         <div id="2D" class='map2d'></div>
         <div id="3D" class='map3d'></div>
 
-        <!-- 面板关闭箭头（独立于面板） -->
-        <div class='panel-close-arrow' id='panel-close-arrow' style="position: fixed !important; right: -50px !important; top: 50% !important; transform: translateY(-50%) !important; width: 30px !important; height: 60px !important; background: red !important; border: 3px solid yellow !important; border-radius: 10px 0 0 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; z-index: 99999 !important; opacity: 1 !important; visibility: visible !important; transition: all 0.3s ease !important; box-shadow: -5px 0 10px rgba(0, 0, 0, 0.5) !important;">
-            <div class='arrow-icon' style="width: 0 !important; height: 0 !important; border-top: 10px solid transparent !important; border-bottom: 10px solid transparent !important; border-right: 12px solid white !important; opacity: 1 !important;"></div>
-        </div>
 
         <!-- 全新设计的右侧面板 -->
         <div class='sidebar-new' id='sidebar-right' style="position: fixed !important; top: 125px !important; right: -450px !important; width: 450px !important; height: calc(100vh - 125px) !important; background-color: #ffffff !important; background: #ffffff !important; border-left: 2px solid #ddd !important; z-index: 9999 !important; display: flex !important; flex-direction: column !important; transform: none !important; transition: right 0.3s ease !important; box-shadow: -5px 0 15px rgba(0,0,0,0.3) !important;">

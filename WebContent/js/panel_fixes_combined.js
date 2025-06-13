@@ -82,6 +82,9 @@ class CombinedPanelFixManager {
         if (document.getElementById('right-panel-opener')) {
             return;
         }
+        
+        // 创建右侧面板的关闭按钮（黄色竖条改为箭头）
+        this.createRightPanelCloser();
 
         // 创建开启按钮
         const opener = document.createElement('div');
@@ -138,6 +141,57 @@ class CombinedPanelFixManager {
         document.body.appendChild(opener);
 
         console.log('✅ 右侧面板开启按钮已创建');
+    }
+    
+    /**
+     * 创建右侧面板关闭按钮（替代原来的黄色竖条）
+     */
+    createRightPanelCloser() {
+        // 检查是否已存在关闭按钮
+        if (document.getElementById('right-panel-closer')) {
+            return;
+        }
+        
+        // 创建关闭按钮（放在右侧面板左边缘）
+        const closer = document.createElement('div');
+        closer.id = 'right-panel-closer';
+        closer.className = 'panel-closer';
+        closer.innerHTML = `
+            <div class="closer-arrow">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M8 4L12 10L8 16" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        `;
+        
+        // 设置样式（固定在右侧面板左边缘）
+        closer.style.cssText = `
+            position: fixed;
+            top: 50%;
+            right: 450px; /* 初始位置在面板左边缘 */
+            transform: translateY(-50%);
+            width: 30px;
+            height: 60px;
+            background: #FFD700; /* 黄色背景 */
+            border-radius: 15px 0 0 15px;
+            cursor: pointer;
+            z-index: 10001;
+            display: none; /* 初始隐藏 */
+            align-items: center;
+            justify-content: center;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        `;
+        
+        // 点击事件 - 关闭右侧面板
+        closer.addEventListener('click', () => {
+            this.hideRightPanel();
+        });
+        
+        // 添加到页面
+        document.body.appendChild(closer);
+        
+        console.log('✅ 右侧面板关闭按钮已创建');
     }
 
     /**
@@ -206,6 +260,7 @@ class CombinedPanelFixManager {
     showRightPanel() {
         const panel = document.getElementById('sidebar-right');
         const opener = document.getElementById('right-panel-opener');
+        const closer = document.getElementById('right-panel-closer');
         const mapContainer = document.getElementById('vmap');
 
         if (panel) {
@@ -215,6 +270,12 @@ class CombinedPanelFixManager {
             // 隐藏开启按钮
             if (opener) {
                 opener.classList.add('hidden');
+            }
+            
+            // 显示关闭按钮并调整位置
+            if (closer) {
+                closer.style.display = 'flex';
+                closer.style.right = '450px'; // 面板宽度
             }
 
             // 调整地图容器
@@ -240,6 +301,7 @@ class CombinedPanelFixManager {
     hideRightPanel() {
         const panel = document.getElementById('sidebar-right');
         const opener = document.getElementById('right-panel-opener');
+        const closer = document.getElementById('right-panel-closer');
         const mapContainer = document.getElementById('vmap');
 
         if (panel) {
@@ -249,6 +311,11 @@ class CombinedPanelFixManager {
             // 显示开启按钮
             if (opener) {
                 opener.classList.remove('hidden');
+            }
+            
+            // 隐藏关闭按钮
+            if (closer) {
+                closer.style.display = 'none';
             }
 
             // 恢复地图容器
@@ -754,6 +821,17 @@ class CombinedPanelFixManager {
             .right-panel-opener.hidden {
                 opacity: 0 !important;
                 pointer-events: none !important;
+            }
+            
+            /* 右侧面板关闭按钮样式 */
+            #right-panel-closer {
+                transition: right 0.3s ease !important;
+            }
+            
+            /* 当面板活动时，关闭按钮跟随面板移动 */
+            #sidebar-right.active ~ #right-panel-closer,
+            body:has(#sidebar-right.active) #right-panel-closer {
+                right: 450px !important;
             }
 
             /* 导航按钮增强 */

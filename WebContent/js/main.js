@@ -528,6 +528,12 @@ function QueryRouteClick() {
     //var strSQLVoyAll = "select * from VOYAGE t";
     //DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, callBackVoyageList);
 
+    // 显示右侧面板
+    const rightPanel = document.getElementById('sidebar-right');
+    if (rightPanel && !rightPanel.classList.contains('active')) {
+        rightPanel.classList.add('active');
+        console.log('✅ 查询时自动显示右侧面板');
+    }
 
     clearTable("tbodyVoyageList");
     viewer.dataSources.removeAll();
