@@ -50,19 +50,15 @@ public class DatabaseOperation {
 	 * @return con数据库连接信息
 	 */
 	public Connection TryConnection() throws SAXException, IOException {
-		System.out.println("=== TryConnection开始 ===");
 		
 		try {
-			System.out.println("加载Oracle JDBC驱动...");
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-			System.out.println("✓ Oracle JDBC驱动加载成功");
 		} catch (ClassNotFoundException e) {
 			System.err.println("✗ Oracle JDBC驱动加载失败: " + e.getMessage());
 			e.printStackTrace();
 			throw new RuntimeException("Oracle JDBC驱动加载失败", e);
 		}
 
-		System.out.println("开始解析数据库配置...");
 		
 		try {
 			URL classUrl = Thread.currentThread().getContextClassLoader().getResource("");
@@ -71,7 +67,6 @@ public class DatabaseOperation {
 			}
 			
 			String strClassURL = classUrl.toString();
-			System.out.println("原始类路径: " + strClassURL);
 			
 			// 更可靠的路径处理
 			if (strClassURL.startsWith("file:")) {
@@ -98,7 +93,6 @@ public class DatabaseOperation {
 			}
 			
 			String webConPath = strClassURL + "web.xml";
-			System.out.println("计算的配置文件路径: " + webConPath);
 
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -125,8 +119,6 @@ public class DatabaseOperation {
 						String nodeValue = childNodes.item(k).getFirstChild() != null ? 
 							childNodes.item(k).getFirstChild().getNodeValue() : "";
 						DBParaMap.put(nodeName, nodeValue);
-						System.out.println("数据库配置 " + nodeName + ": " + 
-							(nodeName.equals("password") ? "****" : nodeValue));
 					}
 				}
 			}
@@ -139,7 +131,6 @@ public class DatabaseOperation {
 				throw new RuntimeException("数据库配置不完整: url=" + url + ", user=" + user + ", password=" + (password != null ? "****" : "null"));
 			}
 			
-			System.out.println("✓ 数据库配置解析成功");
 
 		} catch (ParserConfigurationException e1) {
 			System.err.println("✗ XML解析配置异常: " + e1.getMessage());
@@ -151,14 +142,10 @@ public class DatabaseOperation {
 			throw new RuntimeException("配置解析失败", e);
 		}
 
-		System.out.println("开始建立数据库连接...");
-		System.out.println("连接URL: " + url);
-		System.out.println("用户名: " + user);
 		
 		try {
 			con = DriverManager.getConnection(url, user, password);
 			if (con != null && !con.isClosed()) {
-				System.out.println("✓ 数据库连接建立成功");
 			} else {
 				throw new SQLException("连接建立后状态异常");
 			}
@@ -170,7 +157,6 @@ public class DatabaseOperation {
 			throw new RuntimeException("数据库连接失败: " + e.getMessage(), e);
 		}
 
-		System.out.println("=== TryConnection完成 ===");
 		return con;
 	}
 	
@@ -186,7 +172,6 @@ public class DatabaseOperation {
 	 */
 	public String testDatabaseConnection() {
 		try {
-			System.out.println("=== DWR testDatabaseConnection 开始 ===");
 			return testConnection();
 		} catch (Exception e) {
 			System.err.println("DWR testDatabaseConnection 异常: " + e.getMessage());
@@ -199,13 +184,11 @@ public class DatabaseOperation {
 	 * 超级安全的航次查询 - 用于DWR调用，避免序列化问题
 	 */
 	public String queryVoyageListSafe() {
-		System.out.println("=== queryVoyageListSafe开始 ===");
 		
 		try {
 			// 步骤1：检查Oracle驱动
 			try {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
-				System.out.println("✓ Oracle JDBC驱动加载成功");
 			} catch (Exception e) {
 				String msg = "数据库驱动加载失败: " + e.getMessage();
 				System.err.println("✗ " + msg);
@@ -217,7 +200,6 @@ public class DatabaseOperation {
 			String dbUser = "iocasksh";
 			String dbPassword = "iocas6760";
 			
-			System.out.println("使用连接参数: " + dbUrl + ", 用户: " + dbUser);
 			
 			// 步骤3：尝试连接
 			Connection testCon = null;
@@ -232,7 +214,6 @@ public class DatabaseOperation {
 					return "数据库连接失败: 连接已关闭";
 				}
 				
-				System.out.println("✓ 数据库连接建立成功");
 				
 				// 步骤4：测试航次查询
 				try {
@@ -257,7 +238,6 @@ public class DatabaseOperation {
 						result.append("SEA_AREA=").append(seaArea != null ? seaArea : "null").append(", ");
 						result.append("V_START=").append(vStart != null ? vStart : "null").append("\n");
 						
-						System.out.println("✓ 处理航次数据: ID=" + id + ", NAME=" + name);
 					}
 					
 					if (count == 0) {
@@ -270,7 +250,6 @@ public class DatabaseOperation {
 					pstmt.close();
 					testCon.close();
 					
-					System.out.println("✓ queryVoyageListSafe完成，返回" + count + "条记录");
 					return result.toString();
 					
 				} catch (SQLException sqle) {
@@ -302,13 +281,11 @@ public class DatabaseOperation {
 	 * 超级安全的数据库连接测试 - 用于DWR调用
 	 */
 	public String testConnectionSafe() {
-		System.out.println("=== 超级安全数据库连接测试开始 ===");
 		
 		try {
 			// 步骤1：检查Oracle驱动
 			try {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
-				System.out.println("✓ Oracle JDBC驱动加载成功");
 			} catch (Exception e) {
 				String msg = "数据库驱动加载失败: " + e.getMessage();
 				System.err.println("✗ " + msg);
@@ -320,7 +297,6 @@ public class DatabaseOperation {
 			String dbUser = "iocasksh";
 			String dbPassword = "iocas6760";
 			
-			System.out.println("使用连接参数: " + dbUrl + ", 用户: " + dbUser);
 			
 			// 步骤3：尝试连接
 			Connection testCon = null;
@@ -335,7 +311,6 @@ public class DatabaseOperation {
 					return "数据库连接失败: 连接已关闭";
 				}
 				
-				System.out.println("✓ 数据库连接建立成功");
 				
 				// 步骤4：测试简单查询
 				try {
@@ -345,7 +320,6 @@ public class DatabaseOperation {
 					
 					if (rs.next()) {
 						int tableCount = rs.getInt("CNT");
-						System.out.println("✓ VOYAGE表存在性检查: " + tableCount);
 						
 						if (tableCount > 0) {
 							// 测试VOYAGE表数据
@@ -355,7 +329,6 @@ public class DatabaseOperation {
 							
 							if (dataRs.next()) {
 								int dataCount = dataRs.getInt("DATA_CNT");
-								System.out.println("✓ VOYAGE表数据量: " + dataCount);
 								
 								dataRs.close();
 								dataPstmt.close();
@@ -407,7 +380,6 @@ public class DatabaseOperation {
 	 * 简单的DWR测试方法
 	 */
 	public String sayHello() {
-		System.out.println("DWR sayHello 被调用");
 		return "Hello from DatabaseOperation! 当前时间: " + new java.util.Date();
 	}
 
@@ -421,12 +393,10 @@ public class DatabaseOperation {
 	// Enhanced test method with detailed diagnostics
 	public String testConnection() {
 		try {
-			System.out.println("=== 开始数据库连接测试 ===");
 			
 			// Test 1: Check Oracle driver
 			try {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
-				System.out.println("✓ Oracle JDBC驱动加载成功");
 			} catch (ClassNotFoundException e) {
 				System.err.println("✗ Oracle JDBC驱动加载失败: " + e.getMessage());
 				return "数据库驱动加载失败：" + e.getMessage();
@@ -444,7 +414,6 @@ public class DatabaseOperation {
 				return "数据库连接失败：连接已关闭";
 			}
 			
-			System.out.println("✓ 数据库连接建立成功");
 			
 			// Test 3: Test basic query
 			try {
@@ -454,7 +423,6 @@ public class DatabaseOperation {
 				
 				if (rs.next()) {
 					int tableCount = rs.getInt("count");
-					System.out.println("✓ 基本查询执行成功，VOYAGE表存在检查结果: " + tableCount);
 					
 					if (tableCount > 0) {
 						// Test 4: Test data query
@@ -464,7 +432,6 @@ public class DatabaseOperation {
 						
 						if (dataRs.next()) {
 							int dataCount = dataRs.getInt("data_count");
-							System.out.println("✓ 数据查询成功，VOYAGE表中的数据条数: " + dataCount);
 							
 							// Test 5: Sample data query
 							if (dataCount > 0) {
@@ -476,7 +443,6 @@ public class DatabaseOperation {
 									String sampleId = sampleRs.getString("ID");
 									String sampleName = sampleRs.getString("NAME");
 									String sampleArea = sampleRs.getString("SEA_AREA");
-									System.out.println("✓ 样本数据查询成功: ID=" + sampleId + ", NAME=" + sampleName + ", SEA_AREA=" + sampleArea);
 								}
 								sampleRs.close();
 								samplePstmt.close();
@@ -488,7 +454,6 @@ public class DatabaseOperation {
 							pstmt.close();
 							con.close();
 							
-							System.out.println("=== 数据库连接测试完成 ===");
 							return "数据库连接测试成功！VOYAGE表存在，包含 " + dataCount + " 条数据";
 						}
 					} else {
@@ -520,7 +485,6 @@ public class DatabaseOperation {
 			try {
 				if (con != null && !con.isClosed()) {
 					con.close();
-					System.out.println("数据库连接已关闭");
 				}
 			} catch (SQLException e) {
 				System.err.println("关闭连接时出错: " + e.getMessage());
@@ -531,10 +495,10 @@ public class DatabaseOperation {
 	public ArrayList<VoyageInfo> QueryVoyageList(String strSQL) {
 		ResultSet result = null;
 		ArrayList<VoyageMod.VoyageInfo> voyList = new ArrayList<VoyageMod.VoyageInfo>();
+		Connection con = null; // 将 con 的声明移到这里
+		PreparedStatement pre = null; // 将 pre 的声明移到这里
 
 		try {
-			System.out.println("=== QueryVoyageList开始 ===");
-			System.out.println("输入SQL参数: " + (strSQL != null ? strSQL : "null"));
 			
 			// Test connection first with safer approach
 			try {
@@ -542,33 +506,24 @@ public class DatabaseOperation {
 			} catch (Exception connException) {
 				System.err.println("✗ TryConnection异常: " + connException.getMessage());
 				connException.printStackTrace();
-				return voyList; // Return empty list
+				// 向DWR抛出明确的异常
+				throw new RuntimeException("数据库连接失败: " + connException.getMessage(), connException);
 			}
 			
-			if (con == null) {
-				System.err.println("✗ 数据库连接失败，返回空列表");
-				return voyList;
+			if (con == null || con.isClosed()) {
+				System.err.println("✗ 数据库连接无效，返回空列表");
+				throw new RuntimeException("数据库连接无效");
 			}
 			
-			if (con.isClosed()) {
-				System.err.println("✗ 数据库连接已关闭，返回空列表");
-				return voyList;
-			}
-			
-			System.out.println("✓ 数据库连接成功");
 			
 			// Use default query if strSQL is empty or null
-			String sql = strSQL;
-			if (sql == null || sql.trim().isEmpty()) {
-				sql = "SELECT ID, NAME, SEA_AREA, V_START, TRAJ_PATH FROM VOYAGE ORDER BY ID";
-				System.out.println("使用默认SQL查询: " + sql);
-			} else {
-				System.out.println("使用输入SQL查询: " + sql);
-			}
+			String sql = (strSQL == null || strSQL.trim().isEmpty()) 
+				? "SELECT ID, NAME, SEA_AREA, V_START, V_END, SCIENTIST, PROJECT, VOYAGEREPORTINFO, TRAJ_PATH FROM VOYAGE ORDER BY ID" 
+				: strSQL;
+			
 			
 			pre = con.prepareStatement(sql);
 			result = pre.executeQuery();
-			System.out.println("✓ SQL执行成功，开始处理结果");
 			
 			int rowCount = 0;
 			while (result.next()) {
@@ -581,14 +536,32 @@ public class DatabaseOperation {
 					String name = result.getString("NAME");
 					String seaArea = result.getString("SEA_AREA");
 					String vStart = result.getString("V_START");
+					String vEnd = null;
+					String scientist = null;
+					String project = null;
+					String voyageReportInfo = null;
 					String trajPath = result.getString("TRAJ_PATH");
 					
-					System.out.println("处理第" + rowCount + "行数据: ID=" + id + ", NAME=" + name);
+					// 尝试读取其他字段（可能不在某些查询中）
+					try {
+						vEnd = result.getString("V_END");
+						scientist = result.getString("SCIENTIST");
+						project = result.getString("PROJECT");
+						voyageReportInfo = result.getString("VOYAGEREPORTINFO");
+					} catch (SQLException e) {
+						// 忽略，这些字段可能不在查询结果中
+					}
 					
+					
+					// 为每个字段提供默认值
 					voyInfo.setID(id != null ? id : "0");
 					voyInfo.setName(name != null ? name : "未知航次");
 					voyInfo.setSeaArea(seaArea != null ? seaArea : "未知区域");
 					voyInfo.setVStart(vStart != null ? vStart : "1900-01-01");
+					voyInfo.setVEnd(vEnd != null ? vEnd : "");
+					voyInfo.setScientist(scientist != null ? scientist : "");
+					voyInfo.setProject(project != null ? project : "");
+					voyInfo.setReportInfo(voyageReportInfo != null ? voyageReportInfo : "");
 					voyInfo.setTrajPath(trajPath != null ? trajPath : "");
 
 					// Always add voyage info, even if trajPath is null
@@ -600,40 +573,37 @@ public class DatabaseOperation {
 				}
 			}
 			
-			System.out.println("✓ 成功查询到 " + voyList.size() + " 个航次记录");
 			
 		} catch (SQLException sqle) {
 			System.err.println("✗ SQL查询异常: " + sqle.getMessage());
 			System.err.println("   SQL状态: " + sqle.getSQLState());
 			System.err.println("   错误代码: " + sqle.getErrorCode());
 			sqle.printStackTrace();
-			
+			// 可以选择向上抛出自定义异常，以便DWR更好地处理
+			throw new RuntimeException("数据库查询失败: " + sqle.getMessage(), sqle);
 			
 		} catch (Exception e) {
 			System.err.println("✗ 查询航次列表时发生未知异常: " + e.getClass().getSimpleName() + " - " + e.getMessage());
 			e.printStackTrace();
-			
+			// 向上抛出异常
+			throw new RuntimeException("处理航次列表时发生未知错误", e);
 			
 		} finally {
 			try {
 				if (result != null) {
 					result.close();
-					System.out.println("ResultSet已关闭");
 				}
 				if (pre != null) {
 					pre.close();
-					System.out.println("PreparedStatement已关闭");
 				}
 				if (con != null) {
 					con.close();
-					System.out.println("数据库连接已关闭");
 				}
 			} catch (Exception e) {
 				System.err.println("关闭数据库资源时出错: " + e.getMessage());
 				e.printStackTrace();
 			}
 			
-			System.out.println("=== QueryVoyageList结束，返回" + voyList.size() + "条记录 ===");
 		}
 		return voyList;
 	}
@@ -700,7 +670,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -749,7 +718,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -776,24 +744,65 @@ public class DatabaseOperation {
 			voyInfo = QueryVoyageInfo(strSQLVoyName, voyageID);
 
 			con = TryConnection();
-			String sql = "select * from STATION where VOYAGE_ID=? order by ID";
+			
+			// 判断是否使用参数化查询
+			boolean useParameter = (strSQL == null || strSQL.trim().isEmpty() || strSQL.contains("?"));
+			
+			// 使用传入的SQL或默认SQL
+			String sql = (strSQL == null || strSQL.trim().isEmpty()) 
+				? "select * from STATION where VOYAGE_ID=? order by ID" 
+				: strSQL;
+			
 			pre = con.prepareStatement(sql);
-			pre.setString(1, voyageID);
+			
+			// 只有当SQL包含参数占位符时才设置参数
+			if (useParameter && voyageID != null) {
+				pre.setString(1, voyageID);
+			}
+			
 			result = pre.executeQuery();
+			
+			
+			int count = 0;
 			while (result.next()) {
+				count++;
 				VoyageMod.StationInfo staInfo = new VoyageMod.StationInfo();
-				staInfo.setID(result.getString("id"));
-				staInfo.setName(result.getString("name"));
-				staInfo.setLongitude(result.getString("LONGITUDE"));
-				staInfo.setLatitude(result.getString("LATITUDE"));
-				staInfo.setDeep(result.getString("DEEP"));
-				staInfo.setDate(result.getString("S_DATE"));
-				staInfo.setVoyageID(result.getString("VOYAGE_ID"));
-				staInfo.setVoyageName(voyInfo.getName());
-				staInfo.setType(result.getString("STA_TYPE"));
+				
+				try {
+					// 使用大写字段名（根据数据库表结构）
+					String id = result.getString("ID");
+					String name = result.getString("NAME");
+					String longitude = result.getString("LONGITUDE");
+					String latitude = result.getString("LATITUDE");
+					String deep = result.getString("DEEP");
+					String sDate = result.getString("S_DATE");
+					String voyId = result.getString("VOYAGE_ID");
+					
+					staInfo.setID(id);
+					staInfo.setName(name);
+					staInfo.setLongitude(longitude);
+					staInfo.setLatitude(latitude);
+					staInfo.setDeep(deep);
+					staInfo.setDate(sDate);
+					staInfo.setVoyageID(voyId);
+					staInfo.setVoyageName(voyInfo != null ? voyInfo.getName() : "");
+					
+					// STA_TYPE可能不存在，安全处理
+					try {
+						staInfo.setType(result.getString("STA_TYPE"));
+					} catch (SQLException e) {
+						// 忽略，字段可能不存在
+					}
+				} catch (SQLException e) {
+					System.err.println("处理站点数据时出错: " + e.getMessage());
+					e.printStackTrace();
+					// 继续处理下一条记录
+					continue;
+				}
 
 				staList.add(staInfo);
 			}
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -805,7 +814,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -852,7 +860,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -903,7 +910,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -955,7 +961,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1007,7 +1012,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1053,7 +1057,6 @@ public class DatabaseOperation {
 					pre.close();
 				if (con != null)
 					con.close();
-				System.out.println("数据库连接已关闭！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

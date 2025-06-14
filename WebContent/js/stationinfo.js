@@ -152,7 +152,6 @@ function initctdInfoTable(selVoyName,selStaID) {
     try {
         DatabaseOperationJS.QueryCTDList(strSQLCTDlist, selStaID, 
             function(data) {
-                console.log('✅ CTD数据查询成功:', data);
                 callBackCTDList(data);
             },
             function(error) {

@@ -473,4 +473,3 @@ window.IVSOSD.yangliuclick = yangliuclick;
 // 标记导航模块已加载
 window.IVSOSD.navigationModuleLoaded = true;
 
-console.log('✅ navigation.js 模块已加载');

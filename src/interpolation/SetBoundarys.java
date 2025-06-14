@@ -146,7 +146,6 @@ public class SetBoundarys {
 
 			}
 		} catch (ParseException pe) {
-			System.out.println(pe);
 		}
 		// 如果用户选择了深度剖面
 		if (proType.equals("Deep")) {

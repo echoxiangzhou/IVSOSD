@@ -368,7 +368,6 @@ function ShowSeriesTime(layer, maxinInfo) {
  * 清除动态图层
  */
 function ClearDynaMaps() {
-    console.log('🗑️ ClearDynaMaps 被调用，强化保护基础影像图层');
     
     // 强制检查初始化状态
     if (!window.CESIUM_INITIALIZATION_COMPLETE) {
@@ -379,7 +378,6 @@ function ClearDynaMaps() {
     var imageryLayers = viewer.imageryLayers;
     
     // 绝对不删除任何影像图层 - 只清除实体和数据源
-    console.log('🛡️ 绝对保护所有影像图层，只清除科学数据');
     
     // 清除动态数据但保留所有影像图层
     viewer.entities.removeAll();
@@ -397,9 +395,7 @@ function ClearDynaMaps() {
             if (!window.primaryImageryLayer.show) {
                 window.primaryImageryLayer.show = true;
                 viewer.scene.requestRender();
-                console.log('🔧 恢复基础影像图层可见性');
             }
-            console.log('✅ 基础影像图层状态正常');
         }
     } else {
         console.warn('⚠️ primaryImageryLayer引用丢失，立即恢复...');
@@ -428,7 +424,6 @@ function ClearDynaMaps() {
 // profile.js 中的基础影像图层恢复函数
 function restoreBaseImageryLayerInProfile() {
     try {
-        console.log('🔧 在ClearDynaMaps中恢复基础影像图层...');
         
         if (viewer.imageryLayers.length === 0) {
             const osmProvider = new Cesium.OpenStreetMapImageryProvider({
@@ -442,14 +437,12 @@ function restoreBaseImageryLayerInProfile() {
             window.primaryImageryLayer = newLayer;
             window.CESIUM_BASE_IMAGERY_PROTECTED = true;
             viewer.scene.requestRender();
-            console.log('✅ 基础影像图层已在profile.js中恢复');
         } else {
             // 重新建立引用到第一个图层
             var firstLayer = viewer.imageryLayers.get(0);
             firstLayer._cesiumProtected = true;
             firstLayer._isBaseLayer = true;
             window.primaryImageryLayer = firstLayer;
-            console.log('✅ 重新建立基础图层引用');
         }
         
     } catch (error) {

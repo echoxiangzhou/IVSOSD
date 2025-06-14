@@ -57,7 +57,6 @@ public class OctantSearchPoint extends StartInterpolation {
 			if (Math.abs(d_tmp) <= 0.0) {
 				b_identic = true;
 				if (debug)
-					System.out.println("identic " + Math.abs(d_tmp));
 				newphi = Temp[i];
 				break identic;
 			}
@@ -193,9 +192,7 @@ public class OctantSearchPoint extends StartInterpolation {
 					omega = omega + ((phi_All[i] * T_All[i]) / Math.pow(vecdist, beta));
 					tau = tau + (phi_All[i] / Math.pow(vecdist, beta));
 				} else {
-					if (debug)
-						System.out.println(
-								" vecdist = " + vecdist + " i=" + i + " i2=" + i2 + " SUM emptyOCT = " + empty_OCT);
+					// vecdist is 0, skip this point
 				}
 			}
 			newphi = omega / tau;

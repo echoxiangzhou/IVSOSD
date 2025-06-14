@@ -23,7 +23,8 @@ if (!window.IVSOSD || !window.IVSOSD.voyageListModuleLoaded) {
  * @param {Array} voyageList - 航次列表数据
  */
 var callBackVoyageList = function (voyageList) {
-    // Add null check and error handling for voyageList
+    
+    // 增加对 voyageList 的空值和类型检查
     if (!voyageList || !Array.isArray(voyageList)) {
         console.error('❌ callBackVoyageList: voyageList is null or not an array', voyageList);
         
@@ -36,7 +37,19 @@ var callBackVoyageList = function (voyageList) {
         // 确保右侧面板显示
         showVoyagePanel();
         
+        // 隐藏分页控件
+        updatePaginationButtons(0);
+        
         voyageList = []; // Initialize as empty array
+        return;
+    }
+    
+    // 如果数据为空数组
+    if (voyageList.length === 0) {
+        var tbody = document.getElementById('tbodyVoyageList');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">暂无航次数据</td></tr>';
+        updatePaginationButtons(0);
+        showVoyagePanel();
         return;
     }
     
@@ -89,6 +102,10 @@ var callBackVoyageList = function (voyageList) {
         }
     }
 
+    // 使用文档片段提高性能
+    var obody = document.getElementById("tbodyVoyageList");
+    var fragment = document.createDocumentFragment();
+    
     // 然后显示当前页的航次列表
     for (var i = startIndex; i < endIndex; i++) {
         // Add null checks for voyageList[i] and its properties
@@ -146,9 +163,11 @@ var callBackVoyageList = function (voyageList) {
         var row = createVoyageRow(i + 1, nameSubstr, seaAreaSubstr, startDateStr, voyageName, seaAreaName, startIndex);
         voyageTrajPathList.push(trajPath);
 
-        var obody = document.getElementById("tbodyVoyageList");
-        obody.appendChild(row);
+        fragment.appendChild(row);
     }
+    
+    // 一次性添加所有行
+    obody.appendChild(fragment);
 };
 
 //===========================================
@@ -191,18 +210,23 @@ function createVoyageRow(rowNumber, nameSubstr, seaAreaSubstr, startDateStr, voy
     row.onclick = function () {
         clearTable("tbodyStationList");
         
-        var terminaltablecontent2 = $('#voyagepage1');
-        var terminaltablecontent3 = $('#voyage-info1');
-        var terminaltablecontent = $('#voyagepage2');
-        var terminaltablecontent1 = $('#voyage-info2');
-        terminaltablecontent2.removeClass('active');
-        terminaltablecontent3.removeClass('in');
-        terminaltablecontent.addClass('active');
-        terminaltablecontent1.addClass('in');
-
-        $('#voyage-info-tab1').css('background-image', "url(images/tabbg3100.png)");
-        $('#voyage-info-tab2').css('background-image', "url(images/tabbg3201.png)");
-        $('#voyage-info-tab3').css('background-image', "url(images/tabbg3300.png)");
+        // 使用新的面板切换函数
+        if (typeof switchToVoyageInfoTab === 'function') {
+            switchToVoyageInfoTab();
+        } else {
+            // 后备方案：直接操作DOM
+            const infoTab = document.getElementById('voyage-info-tab');
+            const infoContent = document.getElementById('voyage-info-content');
+            const queryTab = document.getElementById('voyage-query-tab');
+            const queryContent = document.getElementById('voyage-query-content');
+            
+            if (infoTab && infoContent && queryTab && queryContent) {
+                queryTab.classList.remove('active');
+                queryContent.classList.remove('active');
+                infoTab.classList.add('active');
+                infoContent.classList.add('active');
+            }
+        }
 
         selectedVoy = 1;
         selectedSta = 0;
@@ -222,6 +246,19 @@ function createVoyageRow(rowNumber, nameSubstr, seaAreaSubstr, startDateStr, voy
     };
     
     return row;
+}
+
+/**
+ * 高亮选中的行
+ */
+function highlightSelectedRow(row) {
+    // 移除其他行的高亮
+    var allRows = row.parentNode.getElementsByTagName('tr');
+    for (var i = 0; i < allRows.length; i++) {
+        allRows[i].classList.remove('selected');
+    }
+    // 添加当前行高亮
+    row.classList.add('selected');
 }
 
 //===========================================
@@ -394,18 +431,23 @@ function createVoyageRowForPagination(rowNumber, nameSubstr, seaAreaSubstr, star
     row.onclick = function () {
         clearTable("tbodyStationList");
         
-        var terminaltablecontent2 = $('#voyagepage1');
-        var terminaltablecontent3 = $('#voyage-info1');
-        var terminaltablecontent = $('#voyagepage2');
-        var terminaltablecontent1 = $('#voyage-info2');
-        terminaltablecontent2.removeClass('active');
-        terminaltablecontent3.removeClass('in');
-        terminaltablecontent.addClass('active');
-        terminaltablecontent1.addClass('in');
-        
-        $('#voyage-info-tab1').css('background-image', "url(images/tabbg3100.png)");
-        $('#voyage-info-tab2').css('background-image', "url(images/tabbg3201.png)");
-        $('#voyage-info-tab3').css('background-image', "url(images/tabbg3300.png)");
+        // 使用新的面板切换函数
+        if (typeof switchToVoyageInfoTab === 'function') {
+            switchToVoyageInfoTab();
+        } else {
+            // 后备方案：直接操作DOM
+            const infoTab = document.getElementById('voyage-info-tab');
+            const infoContent = document.getElementById('voyage-info-content');
+            const queryTab = document.getElementById('voyage-query-tab');
+            const queryContent = document.getElementById('voyage-query-content');
+            
+            if (infoTab && infoContent && queryTab && queryContent) {
+                queryTab.classList.remove('active');
+                queryContent.classList.remove('active');
+                infoTab.classList.add('active');
+                infoContent.classList.add('active');
+            }
+        }
 
         var selRowIndex = this.rowIndex;
         var selVoyID = voyageList2[startIndex + selRowIndex - 1].ID;
@@ -528,4 +570,3 @@ window.IVSOSD.showVoyagePanel = showVoyagePanel;
 // 标记航次回调模块已加载
 window.IVSOSD.voyageCallbacksModuleLoaded = true;
 
-console.log('✅ voyage-callbacks.js 模块已加载');

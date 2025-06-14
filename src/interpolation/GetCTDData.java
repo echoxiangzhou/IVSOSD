@@ -69,13 +69,11 @@ public class GetCTDData {
 				return Values;
 
 			} else {
-				System.out.println("");
 			}
 
 		} catch (
 
 		Exception e) {
-			System.out.println("");
 			e.printStackTrace();
 		}
 		return null;

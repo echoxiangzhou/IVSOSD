@@ -53,18 +53,15 @@ public class GetCoordinates {
 							Values[i][j] = lineValues[j];
 						}
 
-						System.out.println("");
 						i++;
 					}
 				}
 				read.close();
 				return Values;
 			} else {
-				System.out.println("");
 			}
 		} catch (
 		Exception e) {
-			System.out.println("");
 			e.printStackTrace();
 		}
 		return null;

@@ -42,7 +42,6 @@ public class SaveArrayData {
 			fw.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			System.out.println("");
 			System.exit(-1);
 		}
 	}

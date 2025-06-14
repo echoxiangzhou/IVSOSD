@@ -198,4 +198,3 @@ function clearTable(tableid) {
 // 标记初始化模块已加载
 window.IVSOSD.initModuleLoaded = true;
 
-console.log('✅ init.js 模块已加载');

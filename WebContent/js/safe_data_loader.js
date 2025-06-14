@@ -6,7 +6,6 @@
  * @author: Claude
  */
 
-console.log('=== 加载安全数据加载器 ===');
 
 /**
  * 安全的ShowBaseInfo函数 - 完全重写
@@ -16,7 +15,6 @@ console.log('=== 加载安全数据加载器 ===');
  * 3. 使用影像图层管理器保护
  */
 function SafeShowBaseInfo() {
-    console.log('🏔️ === 安全ShowBaseInfo开始执行 ===');
     
     try {
         // 确保影像图层管理器存在
@@ -32,39 +30,32 @@ function SafeShowBaseInfo() {
         
         // 记录执行前状态
         const statusBefore = window.imageryManager.getStatusReport();
-        console.log('📊 执行前影像图层状态:', statusBefore);
         
         // 获取场景和地球对象
         const scene = viewer.scene;
         const globe = scene.globe;
         
         // 基础地球设置（不影响影像图层）
-        console.log('🌍 设置基础地球属性...');
         globe.depthTestAgainstTerrain = false;
         globe.show = true;
         
         // 独立处理地形设置
-        console.log('🏔️ 独立处理地形设置...');
         SafeSetTerrain();
         
         // 设置地球交互功能
-        console.log('🎯 设置地球交互功能...');
         setupEarthInteraction();
         
         // 验证影像图层状态
         setTimeout(() => {
             const statusAfter = window.imageryManager.getStatusReport();
-            console.log('📊 执行后影像图层状态:', statusAfter);
             
             if (!statusAfter.baseLayerValid || !statusAfter.baseLayerShow) {
                 console.warn('⚠️ 检测到影像图层问题，强制恢复...');
                 window.imageryManager.forceRestoreBaseImageryLayer();
             } else {
-                console.log('✅ 影像图层状态正常');
             }
         }, 100);
         
-        console.log('✅ 安全ShowBaseInfo执行完成');
         
     } catch (error) {
         console.error('❌ 安全ShowBaseInfo执行失败:', error);
@@ -75,14 +66,12 @@ function SafeShowBaseInfo() {
         }
     }
     
-    console.log('🏔️ === 安全ShowBaseInfo执行完毕 ===');
 }
 
 /**
  * 安全的地形设置函数
  */
 function SafeSetTerrain() {
-    console.log('🗻 开始安全地形设置...');
     
     try {
         // 在设置地形前强制确保影像图层安全
@@ -96,24 +85,20 @@ function SafeSetTerrain() {
             requestVertexNormals: true
         });
         
-        console.log('🔄 设置地形提供者: Data/terrain/terrain03');
         viewer.terrainProvider = cesiumTerrainProvider;
         
         // 地形设置后立即检查影像图层
         setTimeout(() => {
-            console.log('🔍 地形设置后检查影像图层...');
             if (window.imageryManager) {
                 const status = window.imageryManager.getStatusReport();
                 if (!status.baseLayerValid || status.totalLayers === 0) {
                     console.warn('⚠️ 地形设置影响了影像图层，立即恢复...');
                     window.imageryManager.forceRestoreBaseImageryLayer();
                 } else {
-                    console.log('✅ 地形设置后影像图层正常');
                 }
             }
         }, 50);
         
-        console.log('✅ 地形设置完成');
         
     } catch (error) {
         console.warn('⚠️ 自定义地形设置失败，使用默认地形:', error);
@@ -134,7 +119,6 @@ function SafeSetTerrain() {
  * 设置地球交互功能（原ShowBaseInfo中的功能）
  */
 function setupEarthInteraction() {
-    console.log('🎯 设置地球交互功能...');
     
     try {
         const scene = viewer.scene;
@@ -175,7 +159,6 @@ function setupEarthInteraction() {
                     const longitude = Cesium.Math.toDegrees(cartographic.longitude);
                     const latitude = Cesium.Math.toDegrees(cartographic.latitude);
                     
-                    console.log(`🎯 点击位置: 经度=${longitude.toFixed(6)}, 纬度=${latitude.toFixed(6)}`);
                     
                     // 更新坐标显示（如果有相关DOM元素）
                     const coordDisplay = document.getElementById('coordinateDisplay');
@@ -208,7 +191,6 @@ function setupEarthInteraction() {
             }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
         
-        console.log('✅ 地球交互功能设置完成');
         
     } catch (error) {
         console.error('❌ 地球交互功能设置失败:', error);
@@ -219,13 +201,11 @@ function setupEarthInteraction() {
  * 安全的航线加载函数
  */
 function SafeAddAllRoute() {
-    console.log('🛤️ === 安全航线加载开始 ===');
     
     try {
         // 确保影像图层安全
         if (window.imageryManager) {
             const statusBefore = window.imageryManager.getStatusReport();
-            console.log('📊 航线加载前影像图层状态:', statusBefore);
             
             if (!statusBefore.baseLayerValid) {
                 console.warn('⚠️ 航线加载前影像图层异常，强制恢复...');
@@ -234,28 +214,21 @@ function SafeAddAllRoute() {
         }
         
         // 清理旧的航线数据（只清理实体，不碰影像图层）
-        console.log('🧹 清理旧航线数据...');
         SafeClearRouteEntities();
         
         // 加载航线数据
-        console.log('📡 开始加载航线数据...');
         
         // 直接从数据库加载航线数据
         if (typeof DatabaseOperationJS !== 'undefined' && DatabaseOperationJS.QueryVoyageList) {
             loadRouteDataFromDatabase();
         } else {
             console.error('❌ DWR服务不可用，无法加载航次数据');
-            console.log('请确保：');
-            console.log('1. 应用服务器正在运行');
-            console.log('2. DWR配置正确');
-            console.log('3. 数据库连接正常');
         }
         
         // 验证加载后状态
         setTimeout(() => {
             if (window.imageryManager) {
                 const statusAfter = window.imageryManager.getStatusReport();
-                console.log('📊 航线加载后影像图层状态:', statusAfter);
                 
                 if (!statusAfter.baseLayerValid || !statusAfter.baseLayerShow) {
                     console.warn('⚠️ 航线加载影响了影像图层，立即恢复...');
@@ -264,7 +237,6 @@ function SafeAddAllRoute() {
             }
         }, 500);
         
-        console.log('✅ 安全航线加载完成');
         
     } catch (error) {
         console.error('❌ 安全航线加载失败:', error);
@@ -275,7 +247,6 @@ function SafeAddAllRoute() {
         }
     }
     
-    console.log('🛤️ === 安全航线加载完毕 ===');
 }
 
 /**
@@ -283,7 +254,6 @@ function SafeAddAllRoute() {
  */
 function SafeClearRouteEntities() {
     try {
-        console.log('🗑️ 安全清理航线实体...');
         
         // 只清理路线相关的实体，不触碰影像图层
         const entitiesToRemove = [];
@@ -306,7 +276,6 @@ function SafeClearRouteEntities() {
             viewer.entities.remove(entity);
         });
         
-        console.log(`✅ 清理了 ${entitiesToRemove.length} 个航线实体`);
         
     } catch (error) {
         console.error('❌ 安全清理航线实体失败:', error);
@@ -318,12 +287,10 @@ function SafeClearRouteEntities() {
  */
 function loadRouteDataFromDatabase() {
     try {
-        console.log('🗄️ 从数据库加载航线数据...');
         
         const strSQL = "select * from VOYAGE t order by ID";
         DatabaseOperationJS.QueryVoyageList(strSQL, {
             callback: function(voyageList) {
-                console.log('📊 航次数据库查询成功:', voyageList);
                 
                 if (voyageList && voyageList.length > 0) {
                     voyageList.forEach((voyage, index) => {
@@ -338,7 +305,6 @@ function loadRouteDataFromDatabase() {
             },
             errorHandler: function(error) {
                 console.error('❌ 数据库查询失败:', error);
-                console.log('🔄 切换到本地航线数据...');
                 loadRouteDataFromLocal();
             }
         });
@@ -354,7 +320,6 @@ function loadRouteDataFromDatabase() {
  */
 function loadRouteDataFromLocal() {
     try {
-        console.log('📂 从本地文件加载航线数据...');
         
         // 加载航线CZML文件 - 使用实际存在的文件
         const routeDataSources = [
@@ -385,7 +350,6 @@ function loadRouteDataFromLocal() {
  */
 function loadCZMLSafely(url, name) {
     try {
-        console.log(`📥 安全加载CZML: ${name} (${url})`);
         
         // 添加更多安全检查
         if (!viewer || !viewer.dataSources) {
@@ -402,7 +366,6 @@ function loadCZMLSafely(url, name) {
             if (dataSource) {
                 dataSource.name = name;
                 viewer.dataSources.add(dataSource);
-                console.log(`✅ CZML加载成功: ${name}`);
             }
             
             // 加载后检查影像图层状态
@@ -433,7 +396,6 @@ function loadCZMLSafely(url, name) {
  */
 function createSimpleTrajectory(name) {
     try {
-        console.log(`🔄 为${name}创建简单轨迹线...`);
         
         // 创建简单的测试轨迹
         const positions = [
@@ -452,7 +414,6 @@ function createSimpleTrajectory(name) {
             }
         });
         
-        console.log(`✅ 简单轨迹线创建成功: ${name}`);
         
     } catch (error) {
         console.error(`❌ 创建简单轨迹线失败: ${error}`);
@@ -463,20 +424,16 @@ function createSimpleTrajectory(name) {
  * 安全的数据库查询回调
  */
 function SafeCallBackDataRange(data) {
-    console.log('📊 === 安全数据库查询回调开始 ===');
     
     try {
         // 确保影像图层状态
         if (window.imageryManager) {
             const statusBefore = window.imageryManager.getStatusReport();
-            console.log('📊 数据库回调前影像图层状态:', statusBefore);
         }
         
-        console.log('📥 接收到数据范围数据:', data);
         
         // 处理数据（不影响影像图层）
         if (data && typeof data === 'string' && data.length > 0) {
-            console.log('✅ 数据范围数据有效，长度:', data.length);
             
             // 这里可以添加具体的数据处理逻辑
             // 例如：更新时间范围选择器、设置数据过滤条件等
@@ -490,7 +447,6 @@ function SafeCallBackDataRange(data) {
         if (window.imageryManager) {
             setTimeout(() => {
                 const statusAfter = window.imageryManager.getStatusReport();
-                console.log('📊 数据库回调后影像图层状态:', statusAfter);
                 
                 if (!statusAfter.baseLayerValid || !statusAfter.baseLayerShow) {
                     console.warn('⚠️ 数据库回调影响了影像图层，立即恢复...');
@@ -499,7 +455,6 @@ function SafeCallBackDataRange(data) {
             }, 100);
         }
         
-        console.log('✅ 安全数据库查询回调完成');
         
     } catch (error) {
         console.error('❌ 安全数据库查询回调失败:', error);
@@ -510,7 +465,6 @@ function SafeCallBackDataRange(data) {
         }
     }
     
-    console.log('📊 === 安全数据库查询回调完毕 ===');
 }
 
 /**
@@ -518,7 +472,6 @@ function SafeCallBackDataRange(data) {
  */
 function updateDataRangeUI(data) {
     try {
-        console.log('🎨 更新数据范围UI...');
         
         // 解析数据范围信息
         // 这里需要根据实际的数据格式来解析
@@ -535,7 +488,6 @@ function updateDataRangeUI(data) {
             dataStatsElement.textContent = `数据记录数: ${data.length || 0}`;
         }
         
-        console.log('✅ 数据范围UI更新完成');
         
     } catch (error) {
         console.warn('⚠️ 数据范围UI更新失败:', error);
@@ -547,7 +499,6 @@ function updateDataRangeUI(data) {
  */
 function createTestTrajectoryLines() {
     try {
-        console.log('🚢 创建测试航迹线...');
         
         // 测试航迹线数据 - 太平洋区域的几条测试路线
         const testRoutes = [
@@ -599,7 +550,6 @@ function createTestTrajectoryLines() {
                 }
             });
             
-            console.log(`✅ 创建测试航迹线: ${route.name}`);
         });
         
         // 设置相机到可以看到航迹线的位置
@@ -612,7 +562,6 @@ function createTestTrajectoryLines() {
             }
         });
         
-        console.log('✅ 测试航迹线创建完成');
         
     } catch (error) {
         console.error('❌ 创建测试航迹线失败:', error);
@@ -626,33 +575,27 @@ window.SafeCallBackDataRange = SafeCallBackDataRange;
 
 // 安全的初始化函数
 window.initializeSafeDataLoader = function() {
-    console.log('🔒 初始化安全数据加载器...');
     
     try {
         // 替换原始的危险函数
         if (typeof ShowBaseInfo !== 'undefined') {
-            console.log('🔄 替换原始ShowBaseInfo函数...');
             window.OriginalShowBaseInfo = ShowBaseInfo;
             window.ShowBaseInfo = SafeShowBaseInfo;
         }
         
         if (typeof AddAllRoute !== 'undefined') {
-            console.log('🔄 替换原始AddAllRoute函数...');
             window.OriginalAddAllRoute = AddAllRoute;
             window.AddAllRoute = SafeAddAllRoute;
         }
         
         if (typeof callBackDataRange !== 'undefined') {
-            console.log('🔄 替换原始callBackDataRange函数...');
             window.OriginalCallBackDataRange = callBackDataRange;
             window.callBackDataRange = SafeCallBackDataRange;
         }
         
-        console.log('✅ 安全数据加载器初始化完成');
         
     } catch (error) {
         console.error('❌ 安全数据加载器初始化失败:', error);
     }
 };
 
-console.log('✅ 安全数据加载器加载完成');

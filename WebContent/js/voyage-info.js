@@ -14,6 +14,11 @@ if (!window.IVSOSD || !window.IVSOSD.voyageCallbacksModuleLoaded) {
     throw new Error('voyage-info.js depends on voyage-callbacks.js module');
 }
 
+// 初始化全局变量（如果尚未定义）
+if (typeof ctdInfoTable === 'undefined') {
+    window.ctdInfoTable = [];
+}
+
 //===========================================
 // 航次信息回调处理
 //===========================================
@@ -393,4 +398,3 @@ window.IVSOSD.restoreBaseImageryLayer = restoreBaseImageryLayer;
 // 标记航次信息模块已加载
 window.IVSOSD.voyageInfoModuleLoaded = true;
 
-console.log('✅ voyage-info.js 模块已加载');

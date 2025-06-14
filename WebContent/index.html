@@ -535,6 +535,7 @@ function checkDWRAndLoadApp() {
         'js/initial.js?v=' + Date.now(),
         'js/imagery_manager.js?v=' + Date.now(),  // 影像图层管理器需要先加载
         'js/main-loader.js?v=' + Date.now(),
+        'js/panel-switcher.js?v=' + Date.now(),  // 面板切换辅助函数
         'js/panel_fixes_combined.js?v=' + Date.now(),
         'js/voyage.js?v=' + Date.now()  // 航次树形控件初始化
     ];
@@ -600,6 +601,12 @@ window.debugPanelElements = function() {
 };
 
 </script>
+
+<!-- 航次显示修复脚本 -->
+<script src="voyage_display_fix.js"></script>
+
+<!-- 标签页点击修复 -->
+<script src="js/tab-click-fix.js"></script>
 
 </body>
 </html>

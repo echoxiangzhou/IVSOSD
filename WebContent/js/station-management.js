@@ -23,11 +23,32 @@ if (!window.IVSOSD || !window.IVSOSD.voyageInfoModuleLoaded) {
  * @param {Array} stationList - 站点列表数据
  */
 var callBackStationList = function (stationList) {
+    
+    // 检查数据有效性
+    if (!stationList || !Array.isArray(stationList)) {
+        console.error('站点数据无效:', stationList);
+        clearTable("tbodyStationList");
+        var tbody = document.getElementById('tbodyStationList');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">暂无站点数据</td></tr>';
+        }
+        return;
+    }
+    
     viewer.entities.removeAll();
     stationList2 = stationList;
     clickHandlerStationList = stationList;
     BingdingStationHandler();
     clearTable("tbodyStationList");
+    
+    // 如果数据为空数组
+    if (stationList.length === 0) {
+        var tbody = document.getElementById('tbodyStationList');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">该航次暂无站点数据</td></tr>';
+        }
+        return;
+    }
     
     var staSumPageNumber = Math.ceil(stationList2.length / staRowNumber);
     updateStationPaginationButtons(staSumPageNumber);
@@ -41,32 +62,49 @@ var callBackStationList = function (stationList) {
 
     // 添加所有站点实体到地图
     for (var staIndex = 0; staIndex < stationList2.length; staIndex++) {
-        viewer.entities.add({
-            name: stationList2[staIndex].name,
-            position: Cesium.Cartesian3.fromDegrees(stationList2[staIndex].longitude, stationList2[staIndex].latitude, 3000),
-            point: {
-                pixelSize: 8,
-                scaleByDistance: new Cesium.NearFarScalar(2.5e2, 2.0, 1.5e7, 0.5),
-                color: Cesium.Color.RED
-            },
-            data: stationList2[staIndex]
-        });
+        var station = stationList2[staIndex];
+        if (!station) continue;
+        
+        var longitude = parseFloat(station.LONGITUDE || station.longitude || 0);
+        var latitude = parseFloat(station.LATITUDE || station.latitude || 0);
+        
+        // 只有经纬度有效时才添加实体
+        if (!isNaN(longitude) && !isNaN(latitude) && longitude !== 0 && latitude !== 0) {
+            viewer.entities.add({
+                name: station.NAME || station.name || '站点' + (staIndex + 1),
+                position: Cesium.Cartesian3.fromDegrees(longitude, latitude, 3000),
+                point: {
+                    pixelSize: 8,
+                    scaleByDistance: new Cesium.NearFarScalar(2.5e2, 2.0, 1.5e7, 0.5),
+                    color: Cesium.Color.RED
+                },
+                data: station
+            });
+        }
     }
 
     // 显示当前页的站点列表
     staRows = [];
     for (var i = staStartIndex; i < staEndIndex; i++) {
-        var nameSubstr = stationList[i].name;
-        if (stationList[i].name.length > 10) {
-            nameSubstr = stationList[i].name.substring(0, 10) + "…";
+        // 添加空值检查
+        if (!stationList[i]) {
+            console.warn('站点数据索引 ' + i + ' 为空，跳过');
+            continue;
         }
         
+        var nameSubstr = stationList[i].NAME || stationList[i].name || '未知站点';
+        if (nameSubstr.length > 10) {
+            nameSubstr = nameSubstr.substring(0, 10) + "…";
+        }
+        
+        // 兼容大小写字段名
+        var station = stationList[i];
         staRows.push({
-            staid: stationList[i].ID,
-            name: stationList[i].name,
-            longitude: stationList[i].longitude,
-            latitude: stationList[i].latitude,
-            deep: stationList[i].deep
+            staid: station.ID || station.id || i,
+            name: station.NAME || station.name || '未知站点',
+            longitude: station.LONGITUDE || station.longitude || 0,
+            latitude: station.LATITUDE || station.latitude || 0,
+            deep: station.DEEP || station.deep || '0'
         });
 
         var row = createStationRow(nameSubstr, stationList[i], staStartIndex);
@@ -93,13 +131,20 @@ function createStationRow(nameSubstr, stationData, startIndex) {
     var cell2 = document.createElement("td");
     var cell3 = document.createElement("td");
 
-    cell.appendChild(document.createTextNode(nameSubstr));
-    cell1.appendChild(document.createTextNode(parseFloat(stationData.longitude).toFixed(4)));
-    cell2.appendChild(document.createTextNode(parseFloat(stationData.latitude).toFixed(4)));
-    cell3.appendChild(document.createTextNode(parseFloat(stationData.deep).toFixed(2)));
+    // 安全处理文本内容
+    cell.appendChild(document.createTextNode(nameSubstr || '未知站点'));
+    
+    // 安全处理数值，兼容大小写字段名
+    var longitude = parseFloat(stationData.LONGITUDE || stationData.longitude || 0);
+    var latitude = parseFloat(stationData.LATITUDE || stationData.latitude || 0);
+    var deep = parseFloat(stationData.DEEP || stationData.deep || 0);
+    
+    cell1.appendChild(document.createTextNode(isNaN(longitude) ? '0.0000' : longitude.toFixed(4)));
+    cell2.appendChild(document.createTextNode(isNaN(latitude) ? '0.0000' : latitude.toFixed(4)));
+    cell3.appendChild(document.createTextNode(isNaN(deep) ? '0.00' : deep.toFixed(2)));
 
     cell.setAttribute("data-toggle", "tooltip");
-    cell.setAttribute("title", stationData.name);
+    cell.setAttribute("title", stationData.name || '未知站点');
 
     row.appendChild(cell);
     row.appendChild(cell1);
@@ -235,8 +280,11 @@ function staPageNext() {
     // 重新添加站点实体
     for (var staIndex = 0; staIndex < stationList2.length; staIndex++) {
         viewer.entities.add({
-            name: stationList2[staIndex].name,
-            position: Cesium.Cartesian3.fromDegrees(stationList2[staIndex].longitude, stationList2[staIndex].latitude, 3000),
+            name: stationList2[staIndex].NAME || stationList2[staIndex].name || '站点',
+            position: Cesium.Cartesian3.fromDegrees(
+                parseFloat(stationList2[staIndex].LONGITUDE || stationList2[staIndex].longitude || 0), 
+                parseFloat(stationList2[staIndex].LATITUDE || stationList2[staIndex].latitude || 0), 
+                3000),
             point: {
                 pixelSize: 8,
                 scaleByDistance: new Cesium.NearFarScalar(2.5e2, 2.0, 1.5e7, 0.5),
@@ -247,17 +295,17 @@ function staPageNext() {
     
     staRows = [];
     for (var i = staStartIndex; i < staEndIndex; i++) {
-        var nameSubstr = stationList2[i].name;
-        if (stationList2[i].name.length > 10) {
-            nameSubstr = stationList2[i].name.substring(0, 10) + "…";
+        var nameSubstr = stationList2[i].NAME || stationList2[i].name || '未知站点';
+        if (nameSubstr.length > 10) {
+            nameSubstr = nameSubstr.substring(0, 10) + "…";
         }
         
         staRows.push({
-            staid: stationList2[i].ID,
-            name: stationList2[i].name,
-            longitude: stationList2[i].longitude,
-            latitude: stationList2[i].latitude,
-            deep: stationList2[i].deep
+            staid: stationList2[i].ID || stationList2[i].id,
+            name: stationList2[i].NAME || stationList2[i].name || '未知站点',
+            longitude: stationList2[i].LONGITUDE || stationList2[i].longitude || 0,
+            latitude: stationList2[i].LATITUDE || stationList2[i].latitude || 0,
+            deep: stationList2[i].DEEP || stationList2[i].deep || '0'
         });
 
         var row = createStationRow(nameSubstr, stationList2[i], staStartIndex);
@@ -287,8 +335,11 @@ function staPagePrevious() {
 
     for (var staIndex = 0; staIndex < stationList2.length; staIndex++) {
         viewer.entities.add({
-            name: stationList2[staIndex].name,
-            position: Cesium.Cartesian3.fromDegrees(stationList2[staIndex].longitude, stationList2[staIndex].latitude, 3000),
+            name: stationList2[staIndex].NAME || stationList2[staIndex].name || '站点',
+            position: Cesium.Cartesian3.fromDegrees(
+                parseFloat(stationList2[staIndex].LONGITUDE || stationList2[staIndex].longitude || 0), 
+                parseFloat(stationList2[staIndex].LATITUDE || stationList2[staIndex].latitude || 0), 
+                3000),
             point: {
                 pixelSize: 8,
                 scaleByDistance: new Cesium.NearFarScalar(2.5e2, 2.0, 1.5e7, 0.5),
@@ -299,17 +350,17 @@ function staPagePrevious() {
 
     staRows = [];
     for (var i = staStartIndex; i < staEndIndex; i++) {
-        var nameSubstr = stationList2[i].name;
-        if (stationList2[i].name.length > 10) {
-            nameSubstr = stationList2[i].name.substring(0, 10) + "…";
+        var nameSubstr = stationList2[i].NAME || stationList2[i].name || '未知站点';
+        if (nameSubstr.length > 10) {
+            nameSubstr = nameSubstr.substring(0, 10) + "…";
         }
         
         staRows.push({
-            staid: stationList2[i].ID,
-            name: stationList2[i].name,
-            longitude: stationList2[i].longitude,
-            latitude: stationList2[i].latitude,
-            deep: stationList2[i].deep
+            staid: stationList2[i].ID || stationList2[i].id,
+            name: stationList2[i].NAME || stationList2[i].name || '未知站点',
+            longitude: stationList2[i].LONGITUDE || stationList2[i].longitude || 0,
+            latitude: stationList2[i].LATITUDE || stationList2[i].latitude || 0,
+            deep: stationList2[i].DEEP || stationList2[i].deep || '0'
         });
 
         var row = createStationRow(nameSubstr, stationList2[i], staStartIndex);
@@ -449,4 +500,3 @@ window.IVSOSD.updateStationPaginationButtons = updateStationPaginationButtons;
 // 标记站点管理模块已加载
 window.IVSOSD.stationManagementModuleLoaded = true;
 
-console.log('✅ station-management.js 模块已加载');

@@ -327,4 +327,3 @@ window.IVSOSD.DaMianCancle = DaMianCancle;
 // 标记UI控制模块已加载
 window.IVSOSD.uiControlsModuleLoaded = true;
 
-console.log('✅ ui-controls.js 模块已加载');

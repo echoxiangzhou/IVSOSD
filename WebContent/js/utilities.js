@@ -432,4 +432,3 @@ window.IVSOSD.ShowBaseInfo = ShowBaseInfo;
 // 标记工具模块已加载
 window.IVSOSD.utilitiesModuleLoaded = true;
 
-console.log('✅ utilities.js 模块已加载');

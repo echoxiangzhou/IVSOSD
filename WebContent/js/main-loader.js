@@ -96,7 +96,6 @@ class ModuleLoader {
             script.onload = () => {
                 clearTimeout(timeoutId);
                 this.loadedModules.add(moduleName);
-                console.log(`✅ 模块 ${moduleName} 加载成功`);
                 resolve();
             };
 
@@ -143,14 +142,12 @@ class ModuleLoader {
      * @returns {Promise} 加载完成Promise
      */
     async loadAllModules() {
-        console.log('🚀 开始加载IVSOSD模块系统...');
         
         const startTime = Date.now();
         
         try {
             // 依次加载每个模块
             for (const moduleName of this.config.loadOrder) {
-                console.log(`📦 正在加载模块: ${moduleName}`);
                 await this.loadModule(moduleName);
                 
                 // 验证模块是否正确加载
@@ -158,8 +155,6 @@ class ModuleLoader {
             }
             
             const loadTime = Date.now() - startTime;
-            console.log(`🎉 所有模块加载完成! 耗时: ${loadTime}ms`);
-            console.log(`✅ 成功加载模块: ${Array.from(this.loadedModules).join(', ')}`);
             
             if (this.failedModules.size > 0) {
                 console.warn(`⚠️ 失败模块: ${Array.from(this.failedModules).join(', ')}`);
@@ -201,7 +196,6 @@ class ModuleLoader {
      * 初始化系统
      */
     _initializeSystem() {
-        console.log('🔧 正在初始化IVSOSD系统...');
         
         // 检查必要的全局对象
         if (typeof window.IVSOSD !== 'object') {
@@ -225,11 +219,9 @@ class ModuleLoader {
             window.dispatchEvent(event);
         }
 
-        console.log('🎯 IVSOSD系统初始化完成!');
         
         // 执行初始化后的操作
         if (typeof AddAllRoute === 'function') {
-            console.log('📍 加载全部航线...');
             AddAllRoute();
         }
     }
@@ -308,7 +300,6 @@ async function startModuleSystem() {
         await loader.loadAllModules();
         
         // 系统加载完成，可以开始正常使用
-        console.log('🚀 IVSOSD系统已准备就绪!');
         
     } catch (error) {
         console.error('💥 IVSOSD系统启动失败:', error);
@@ -363,4 +354,3 @@ if (document.readyState === 'loading') {
 // 导出模块加载器类，供其他地方使用
 window.ModuleLoader = ModuleLoader;
 
-console.log('📋 IVSOSD模块加载器已初始化');

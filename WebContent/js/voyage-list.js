@@ -19,9 +19,17 @@ if (!window.IVSOSD || !window.IVSOSD.initModuleLoaded || !window.IVSOSD.uiContro
 //===========================================
 
 /**
- * 添加全部航次 - 安全版本
+ * 添加全部航次 - 安全版本（带重试机制）
+ * @param {number} retryCount - 当前重试次数
  */
-function AddAllRoute() {
+function AddAllRoute(retryCount = 0) {
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1秒
+    
+    
+    // 显示加载中状态
+    showLoadingState();
+    
     try {
         // 确保影像图层管理器存在
         if (!window.imageryManager) {
@@ -51,24 +59,32 @@ function AddAllRoute() {
         
         // 使用安全的错误处理
         try {
+            // 设置DWR错误处理
+            if (typeof dwr !== 'undefined' && dwr.engine) {
+                dwr.engine.setErrorHandler(function(message, ex) {
+                    console.error('DWR错误:', message, ex);
+                    hideLoadingState();
+                    showErrorMessage('DWR错误: ' + message);
+                });
+            }
+            
             // 采用 test_db.html 中成功的DWR调用方式
-            DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, 
-                function(data) {
+            DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, {
+                callback: function(data) {
                     // 在回调中也要保护影像图层
                     if (window.imageryManager) {
                         window.imageryManager.forceRestoreBaseImageryLayer();
                     }
+                    
+                    // 隐藏加载状态
+                    hideLoadingState();
                     
                     // 数据验证和处理
                     if (data && Array.isArray(data) && data.length > 0) {
                         callBackVoyageList(data);
                     } else {
                         console.error('❌ 航次数据为空或格式错误，请检查数据库连接和数据');
-                        // 显示数据库连接错误信息
-                        const tbody = document.getElementById('tbodyVoyageList');
-                        if (tbody) {
-                            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: red;">数据库连接失败或VOYAGE表中无数据</td></tr>';
-                        }
+                        showErrorMessage('数据库连接失败或VOYAGE表中无数据');
                     }
                     
                     // 回调执行后再次检查影像图层
@@ -83,8 +99,10 @@ function AddAllRoute() {
                         }
                     }, 100);
                 },
-                function(error) {
+                errorHandler: function(error) {
                     console.error('❌ DWR航次查询失败:', error);
+                    hideLoadingState();
+                    
                     // 添加详细的错误信息
                     if (error) {
                         console.error('错误详情:', {
@@ -100,22 +118,28 @@ function AddAllRoute() {
                         window.imageryManager.forceRestoreBaseImageryLayer();
                     }
                     
-                    // 显示错误信息给用户
-                    const tbody = document.getElementById('tbodyVoyageList');
-                    if (tbody) {
-                        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: red;">
+                    // 检查是否需要重试
+                    if (retryCount < maxRetries) {
+                        showErrorMessage(`加载失败，正在重试... (${retryCount + 1}/${maxRetries})`);
+                        
+                        setTimeout(() => {
+                            AddAllRoute(retryCount + 1);
+                        }, retryDelay);
+                    } else {
+                        // 显示最终错误信息给用户
+                        showErrorMessage(`
                             DWR调用失败: ${error.message || '未知错误'}<br>
                             请检查：<br>
                             1. 服务器是否运行<br>
                             2. 数据库连接是否正常 (192.168.101.38:1521:ORCL)<br>
                             3. DWR配置是否正确
-                        </td></tr>`;
+                        `);
                     }
                     
                     // 尝试默认查询
                     try {
-                        DatabaseOperationJS.QueryVoyageList('', 
-                            function(data) {
+                        DatabaseOperationJS.QueryVoyageList('', {
+                            callback: function(data) {
                                 if (window.imageryManager) {
                                     window.imageryManager.forceRestoreBaseImageryLayer();
                                 }
@@ -125,18 +149,18 @@ function AddAllRoute() {
                                     console.error('❌ 默认查询也返回空数据');
                                 }
                             },
-                            function(error2) {
+                            errorHandler: function(error2) {
                                 console.error('❌ 默认查询也失败:', error2);
                                 if (window.imageryManager) {
                                     window.imageryManager.forceRestoreBaseImageryLayer();
                                 }
                             }
-                        );
+                        });
                     } catch (retryError) {
                         console.error('❌ 重试查询时发生异常:', retryError);
                     }
                 }
-            );
+            });
         } catch (e) {
             console.error('安全AddAllRoute异常:', e);
             if (window.imageryManager) {
@@ -211,24 +235,24 @@ function OriginalAddAllRoute() {
         }
         
         function tryOriginalQuery() {
-            DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, 
-                function(data) {
+            DatabaseOperationJS.QueryVoyageList(strSQLVoyAll, {
+                callback: function(data) {
                     callBackVoyageList(data);
                 },
-                function(error) {
+                errorHandler: function(error) {
                     console.error('❌ 原始航次数据查询失败:', error);
                     // Try with empty SQL to use default query
-                    DatabaseOperationJS.QueryVoyageList('', 
-                        function(data) {
+                    DatabaseOperationJS.QueryVoyageList('', {
+                        callback: function(data) {
                             callBackVoyageList(data);
                         },
-                        function(error2) {
+                        errorHandler: function(error2) {
                             console.error('❌ 默认查询也失败:', error2);
                             callBackVoyageList([]); // Call with empty array
                         }
-                    );
+                    });
                 }
-            );
+            });
         }
         
     } catch (e) {
@@ -256,6 +280,37 @@ function OriginalAddAllRoute() {
     $('.map2d').addClass('active');
     $('.map3d').addClass('active');
     $('.coorInfo').addClass('active');
+}
+
+//===========================================
+// 加载状态管理
+//===========================================
+
+/**
+ * 显示加载状态
+ */
+function showLoadingState() {
+    var tbody = document.getElementById('tbodyVoyageList');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;"><img src="images/loading.gif" alt="加载中..." style="width: 20px; height: 20px;" /> 正在加载航次数据...</td></tr>';
+    }
+}
+
+/**
+ * 隐藏加载状态
+ */
+function hideLoadingState() {
+    // 加载状态会被数据替换，这里可以做其他清理工作
+}
+
+/**
+ * 显示错误信息
+ */
+function showErrorMessage(message) {
+    var tbody = document.getElementById('tbodyVoyageList');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #d9534f;">' + message + '</td></tr>';
+    }
 }
 
 //===========================================
@@ -404,8 +459,10 @@ window.IVSOSD.AddAllRoute = AddAllRoute;
 window.IVSOSD.OriginalAddAllRoute = OriginalAddAllRoute;
 window.IVSOSD.QueryRouteClick = QueryRouteClick;
 window.IVSOSD.parseSafeQueryResult = parseSafeQueryResult;
+window.IVSOSD.showLoadingState = showLoadingState;
+window.IVSOSD.hideLoadingState = hideLoadingState;
+window.IVSOSD.showErrorMessage = showErrorMessage;
 
 // 标记航次列表模块已加载
 window.IVSOSD.voyageListModuleLoaded = true;
 
-console.log('✅ voyage-list.js 模块已加载');

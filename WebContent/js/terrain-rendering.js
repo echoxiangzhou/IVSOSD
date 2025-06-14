@@ -631,4 +631,3 @@ window.IVSOSD.clearOtherTerrainLayers = clearOtherTerrainLayers;
 // 标记地形渲染模块已加载
 window.IVSOSD.terrainRenderingModuleLoaded = true;
 
-console.log('✅ terrain-rendering.js 模块已加载');

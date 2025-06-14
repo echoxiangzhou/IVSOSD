@@ -43,7 +43,6 @@ scene.skyAtmosphere = new Cesium.SkyAtmosphere();
 
 // 初始化影像图层管理器
 if (typeof window.initializeImageryManager === 'function') {
-    console.log('🖼️ 初始化影像图层管理器...');
     window.initializeImageryManager(viewer);
 }
 
@@ -94,7 +93,6 @@ viewer.clock.multiplier = 1;
 var strSQLDataRange = "";
 // 定义callBackDataRange回调函数
 function callBackDataRange(result) {
-    console.log("数据范围查询结果:", result);
 }
 DatabaseOperationJS.QueryDataRange(strSQLDataRange, callBackDataRange);
 

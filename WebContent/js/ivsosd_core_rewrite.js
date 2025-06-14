@@ -6,7 +6,6 @@
  * @author: Claude
  */
 
-console.log('🌊 === IVSOSD核心系统重写版本加载中 ===');
 
 /**
  * IVSOSD核心管理器 - 完全重写版本
@@ -50,7 +49,6 @@ class IVSOSDCoreManager {
             currentFields: null
         };
         
-        console.log('🏗️ IVSOSD核心管理器初始化');
     }
     
     /**
@@ -58,7 +56,6 @@ class IVSOSDCoreManager {
      */
     async initialize() {
         try {
-            console.log('🚀 开始IVSOSD系统初始化...');
             
             // 1. 初始化UI组件
             await this.initializeUI();
@@ -81,7 +78,6 @@ class IVSOSDCoreManager {
             // 7. 最终检查影像图层
             await this.finalImageryCheck();
             
-            console.log('✅ IVSOSD系统初始化完成');
             
         } catch (error) {
             console.error('❌ IVSOSD系统初始化失败:', error);
@@ -93,7 +89,6 @@ class IVSOSDCoreManager {
      * 初始化UI组件 - 保持原始布局
      */
     async initializeUI() {
-        console.log('🎨 初始化UI组件...');
         
         try {
             // 获取关键UI元素
@@ -107,7 +102,6 @@ class IVSOSDCoreManager {
                 const vmapContainer = $('<div id="vmap" class="vmap"></div>');
                 $('.earthContainer').append(vmapContainer);
                 this.ui.mapDiv = vmapContainer;
-                console.log('📦 创建了vmap容器');
             }
             
             // 设置原始UI布局参数
@@ -121,7 +115,6 @@ class IVSOSDCoreManager {
             $('.sidebar-left').addClass('active');
             
             this.ui.isInitialized = true;
-            console.log('✅ UI组件初始化完成');
             
         } catch (error) {
             console.error('❌ UI组件初始化失败:', error);
@@ -166,7 +159,6 @@ class IVSOSDCoreManager {
             $('.map3d').addClass('active');
             $('.coorInfo').addClass('active');
             
-            console.log('✅ 原始布局参数设置完成');
             
         } catch (error) {
             console.error('❌ 原始布局设置失败:', error);
@@ -178,7 +170,6 @@ class IVSOSDCoreManager {
      */
     initializeNavigationButtons() {
         try {
-            console.log('🧭 初始化导航按钮...');
             
             // 确保导航按钮的点击事件正确绑定
             // 这些函数将在后面重新实现
@@ -191,7 +182,6 @@ class IVSOSDCoreManager {
             $('#sidebar-content1').addClass('in');
             $('#voyagepage1').addClass('active');
             
-            console.log('✅ 导航按钮初始化完成');
             
         } catch (error) {
             console.error('❌ 导航按钮初始化失败:', error);
@@ -202,7 +192,6 @@ class IVSOSDCoreManager {
      * 初始化Cesium三维球 - 重写版本
      */
     async initializeCesium() {
-        console.log('🌍 初始化Cesium三维球...');
         
         try {
             // 确保容器准备就绪
@@ -242,7 +231,6 @@ class IVSOSDCoreManager {
                 imageryProvider: false
             };
             
-            console.log('🚀 创建Cesium Viewer...');
             this.viewer = new Cesium.Viewer(container, viewerConfig);
             this.scene = this.viewer.scene;
             this.globe = this.scene.globe;
@@ -258,7 +246,6 @@ class IVSOSDCoreManager {
             window.scene = this.scene;
             window.globe = this.globe;
             
-            console.log('✅ Cesium三维球初始化完成');
             
         } catch (error) {
             console.error('❌ Cesium三维球初始化失败:', error);
@@ -271,7 +258,6 @@ class IVSOSDCoreManager {
      */
     configureGlobeSettings() {
         try {
-            console.log('🌍 配置地球设置...');
             
             // 基础地球设置
             this.globe.show = true;
@@ -293,7 +279,6 @@ class IVSOSDCoreManager {
             this.scene.requestRenderMode = false; // 连续渲染
             this.scene.maximumRenderTimeChange = Infinity;
             
-            console.log('✅ 地球设置配置完成');
             
         } catch (error) {
             console.error('❌ 地球设置配置失败:', error);
@@ -315,7 +300,6 @@ class IVSOSDCoreManager {
                 }
             });
             
-            console.log('✅ 相机初始位置设置完成');
             
         } catch (error) {
             console.error('❌ 相机初始位置设置失败:', error);
@@ -326,14 +310,12 @@ class IVSOSDCoreManager {
      * 初始化影像图层系统
      */
     async initializeImagerySystem() {
-        console.log('🗺️ 初始化影像图层系统...');
         
         try {
             // 创建影像图层管理器
             if (typeof ImageryLayerManager !== 'undefined') {
                 this.imageryManager = new ImageryLayerManager(this.viewer);
                 window.imageryManager = this.imageryManager;
-                console.log('✅ 影像管理器创建成功');
             } else {
                 console.warn('⚠️ ImageryLayerManager未找到，使用备选方案');
             }
@@ -344,7 +326,6 @@ class IVSOSDCoreManager {
             // 强制渲染确保影像显示
             this.viewer.scene.requestRender();
             
-            console.log('✅ 影像图层系统初始化完成');
             
         } catch (error) {
             console.error('❌ 影像图层系统初始化失败:', error);
@@ -358,11 +339,9 @@ class IVSOSDCoreManager {
      */
     async ensureBaseImageryLayer() {
         try {
-            console.log('🗺️ 确保基础影像图层...');
             
             // 检查是否已有影像图层
             if (this.viewer.imageryLayers.length > 0) {
-                console.log('✅ 已存在影像图层，数量:', this.viewer.imageryLayers.length);
                 return;
             }
             
@@ -379,7 +358,6 @@ class IVSOSDCoreManager {
             osmLayer._protected = true; // 添加保护标记
             
             window.primaryImageryLayer = osmLayer;
-            console.log('✅ 基础影像图层添加完成');
             
             // 设置全局保护标志
             window.CESIUM_BASE_IMAGERY_PROTECTED = true;
@@ -393,7 +371,6 @@ class IVSOSDCoreManager {
      * 初始化业务模块
      */
     async initializeBusinessModules() {
-        console.log('🧩 初始化业务模块...');
         
         try {
             // 1. 初始化航次站位模块
@@ -408,7 +385,6 @@ class IVSOSDCoreManager {
             // 4. 初始化洋流风场模块
             await this.initializeCurrentModule();
             
-            console.log('✅ 业务模块初始化完成');
             
         } catch (error) {
             console.error('❌ 业务模块初始化失败:', error);
@@ -420,7 +396,6 @@ class IVSOSDCoreManager {
      */
     async initializeVoyageModule() {
         try {
-            console.log('🚢 初始化航次站位模块...');
             
             // 设置时间轴（原系统要求）
             this.setupTimeline();
@@ -432,7 +407,6 @@ class IVSOSDCoreManager {
             this.bindVoyageEvents();
             
             this.modules.voyage.initialized = true;
-            console.log('✅ 航次站位模块初始化完成');
             
         } catch (error) {
             console.error('❌ 航次站位模块初始化失败:', error);
@@ -457,7 +431,6 @@ class IVSOSDCoreManager {
             this.viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
             this.viewer.clock.multiplier = 1;
             
-            console.log('✅ 时间轴设置完成');
             
         } catch (error) {
             console.error('❌ 时间轴设置失败:', error);
@@ -469,7 +442,6 @@ class IVSOSDCoreManager {
      */
     initializeVoyageTable() {
         try {
-            console.log('📋 初始化航次列表表格...');
             
             // 清空现有表格内容
             $('#tbodyVoyageList').empty();
@@ -479,7 +451,6 @@ class IVSOSDCoreManager {
                 this.handleVoyageRowClick(event);
             });
             
-            console.log('✅ 航次列表表格初始化完成');
             
         } catch (error) {
             console.error('❌ 航次列表表格初始化失败:', error);
@@ -518,7 +489,6 @@ class IVSOSDCoreManager {
                 this.switchVoyageTab('voyage-info3');
             });
             
-            console.log('✅ 航次事件绑定完成');
             
         } catch (error) {
             console.error('❌ 航次事件绑定失败:', error);
@@ -529,7 +499,6 @@ class IVSOSDCoreManager {
      * 初始化数据加载
      */
     async initializeDataLoading() {
-        console.log('📊 初始化数据加载...');
         
         try {
             // 检查DWR是否可用
@@ -553,7 +522,6 @@ class IVSOSDCoreManager {
             // 3. 设置地形提供者（安全方式）
             this.setTerrainProviderSafely();
             
-            console.log('✅ 数据加载初始化完成');
             
         } catch (error) {
             console.error('❌ 数据加载初始化失败:', error);
@@ -566,11 +534,9 @@ class IVSOSDCoreManager {
     async queryDataRange() {
         return new Promise((resolve, reject) => {
             try {
-                console.log('📊 查询数据范围...');
                 
                 DatabaseOperationJS.QueryDataRange("", {
                     callback: (data) => {
-                        console.log('✅ 数据范围查询成功:', data);
                         this.handleDataRangeCallback(data);
                         resolve(data);
                     },
@@ -593,13 +559,11 @@ class IVSOSDCoreManager {
     async loadVoyageData() {
         return new Promise((resolve, reject) => {
             try {
-                console.log('🚢 加载航次数据...');
                 
                 const sql = "select * from VOYAGE t order by ID";
                 
                 DatabaseOperationJS.QueryVoyageList(sql, {
                     callback: (data) => {
-                        console.log('✅ 航次数据加载成功:', data ? data.length : 0, '条记录');
                         this.handleVoyageListCallback(data);
                         resolve(data);
                     },
@@ -633,20 +597,16 @@ class IVSOSDCoreManager {
      */
     setTerrainProviderSafely() {
         try {
-            console.log('🏔️ 安全设置地形提供者...');
             
             // 记录设置前的影像图层状态
             const layerCountBefore = this.viewer.imageryLayers.length;
-            console.log(`🔍 设置地形前影像图层数量: ${layerCountBefore}`);
             
             // 暂时跳过自定义地形，使用默认地形避免影响影像
-            console.log('ℹ️ 使用默认椭球地形以保护影像图层');
             this.viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
             
             // 确保影像图层依然存在
             setTimeout(async () => {
                 const layerCountAfter = this.viewer.imageryLayers.length;
-                console.log(`🔍 地形设置后影像图层检查: ${layerCountBefore} -> ${layerCountAfter}`);
                 
                 if (layerCountAfter === 0) {
                     console.warn('⚠️ 影像图层丢失，立即恢复...');
@@ -662,10 +622,8 @@ class IVSOSDCoreManager {
                 
                 // 最终检查
                 const finalLayerCount = this.viewer.imageryLayers.length;
-                console.log(`🎯 最终影像图层数量: ${finalLayerCount}`);
             }, 200);
             
-            console.log('✅ 地形提供者设置完成');
             
         } catch (error) {
             console.warn('⚠️ 地形设置失败，使用默认地形:', error);
@@ -680,7 +638,6 @@ class IVSOSDCoreManager {
      */
     handleDataRangeCallback(data) {
         try {
-            console.log('📊 处理数据范围回调...');
             
             if (data && typeof data === 'string' && data.length > 0) {
                 // 更新UI显示数据范围信息
@@ -697,7 +654,6 @@ class IVSOSDCoreManager {
      */
     handleVoyageListCallback(data) {
         try {
-            console.log('🚢 处理航次列表回调...');
             
             this.data.voyages = data || [];
             this.updateVoyageTable(this.data.voyages);
@@ -712,7 +668,6 @@ class IVSOSDCoreManager {
      */
     updateVoyageTable(voyages) {
         try {
-            console.log('📋 更新航次表格...', voyages.length, '条记录');
             
             const tbody = $('#tbodyVoyageList');
             tbody.empty();
@@ -730,7 +685,6 @@ class IVSOSDCoreManager {
                 tbody.append(row);
             });
             
-            console.log('✅ 航次表格更新完成');
             
         } catch (error) {
             console.error('❌ 航次表格更新失败:', error);
@@ -742,7 +696,6 @@ class IVSOSDCoreManager {
      */
     async finalImageryCheck() {
         try {
-            console.log('🔍 执行最终影像图层检查...');
             
             if (!this.viewer) {
                 console.error('❌ Viewer不存在，无法检查影像');
@@ -750,7 +703,6 @@ class IVSOSDCoreManager {
             }
             
             const layerCount = this.viewer.imageryLayers.length;
-            console.log(`📊 当前影像图层数量: ${layerCount}`);
             
             if (layerCount === 0) {
                 console.warn('⚠️ 检测到影像图层缺失，立即添加...');
@@ -758,19 +710,15 @@ class IVSOSDCoreManager {
                 
                 // 再次检查
                 const newLayerCount = this.viewer.imageryLayers.length;
-                console.log(`📊 恢复后影像图层数量: ${newLayerCount}`);
                 
                 if (newLayerCount > 0) {
-                    console.log('✅ 影像图层恢复成功');
                 } else {
                     console.error('❌ 影像图层恢复失败');
                 }
             } else {
-                console.log('✅ 影像图层检查通过');
                 
                 // 检查第一个图层的状态
                 const firstLayer = this.viewer.imageryLayers.get(0);
-                console.log(`📋 第一个图层状态: 可见=${firstLayer.show}, 透明度=${firstLayer.alpha}`);
             }
             
             // 强制渲染
@@ -786,7 +734,6 @@ class IVSOSDCoreManager {
      */
     setupEventListeners() {
         try {
-            console.log('👂 设置事件监听...');
             
             // 设置坐标显示
             this.setupCoordinateDisplay();
@@ -796,7 +743,6 @@ class IVSOSDCoreManager {
                 this.handleWindowResize();
             });
             
-            console.log('✅ 事件监听设置完成');
             
         } catch (error) {
             console.error('❌ 事件监听设置失败:', error);
@@ -839,7 +785,6 @@ class IVSOSDCoreManager {
                 }
             }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
             
-            console.log('✅ 坐标显示设置完成');
             
         } catch (error) {
             console.error('❌ 坐标显示设置失败:', error);
@@ -851,7 +796,6 @@ class IVSOSDCoreManager {
      */
     switchToModule(moduleName) {
         try {
-            console.log(`🔄 切换到${moduleName}模块...`);
             
             // 保护影像图层
             if (this.imageryManager) {
@@ -877,7 +821,6 @@ class IVSOSDCoreManager {
             }
             
             this.ui.currentTab = moduleName;
-            console.log(`✅ 已切换到${moduleName}模块`);
             
         } catch (error) {
             console.error(`❌ 切换到${moduleName}模块失败:`, error);
@@ -917,7 +860,6 @@ class IVSOSDCoreManager {
      */
     activateVoyageModule() {
         try {
-            console.log('🚢 激活航次模块...');
             
             // 确保航次数据已加载
             if (this.data.voyages.length === 0) {
@@ -936,7 +878,6 @@ class IVSOSDCoreManager {
      */
     activateProfileModule() {
         try {
-            console.log('📊 激活剖面模块...');
             
             if (!this.modules.profile.initialized) {
                 this.initializeProfileModule();
@@ -954,7 +895,6 @@ class IVSOSDCoreManager {
      */
     activateTerrainModule() {
         try {
-            console.log('🏔️ 激活地形模块...');
             
             if (!this.modules.terrain.initialized) {
                 this.initializeTerrainModule();
@@ -972,7 +912,6 @@ class IVSOSDCoreManager {
      */
     activateCurrentModule() {
         try {
-            console.log('🌊 激活洋流模块...');
             
             if (!this.modules.current.initialized) {
                 this.initializeCurrentModule();
@@ -1020,17 +959,14 @@ window.ivsosdCore = null;
  */
 window.initializeIVSOSD = async function() {
     try {
-        console.log('🌊 开始初始化IVSOSD系统...');
         
         if (window.ivsosdCore) {
-            console.log('⚠️ IVSOSD系统已存在，销毁旧实例...');
             // 这里可以添加清理逻辑
         }
         
         window.ivsosdCore = new IVSOSDCoreManager();
         await window.ivsosdCore.initialize();
         
-        console.log('🎉 IVSOSD系统初始化完成！');
         return window.ivsosdCore;
         
     } catch (error) {
@@ -1048,7 +984,6 @@ if (document.readyState === 'loading') {
     setTimeout(window.initializeIVSOSD, 1000);
 }
 
-console.log('✅ IVSOSD核心系统重写版本加载完成');
 
 // 兼容性函数 - 保持原系统接口
 window.poumianclick = function() {
@@ -1072,7 +1007,6 @@ window.yangliuclick = function() {
 // 扩展IVSOSDCoreManager类，添加缺失的模块实现
 IVSOSDCoreManager.prototype.initializeProfileModule = async function() {
     try {
-        console.log('📊 初始化剖面信息模块...');
         
         // 初始化剖面数据加载
         this.initializeProfileData();
@@ -1084,7 +1018,6 @@ IVSOSDCoreManager.prototype.initializeProfileModule = async function() {
         this.setupProfileLegend();
         
         this.modules.profile.initialized = true;
-        console.log('✅ 剖面信息模块初始化完成');
         
     } catch (error) {
         console.error('❌ 剖面信息模块初始化失败:', error);
@@ -1093,7 +1026,6 @@ IVSOSDCoreManager.prototype.initializeProfileModule = async function() {
 
 IVSOSDCoreManager.prototype.initializeTerrainModule = async function() {
     try {
-        console.log('🏔️ 初始化海底地形模块...');
         
         // 初始化地形渲染设置
         this.initializeTerrainRendering();
@@ -1105,7 +1037,6 @@ IVSOSDCoreManager.prototype.initializeTerrainModule = async function() {
         this.setupTerrainLegend();
         
         this.modules.terrain.initialized = true;
-        console.log('✅ 海底地形模块初始化完成');
         
     } catch (error) {
         console.error('❌ 海底地形模块初始化失败:', error);
@@ -1114,7 +1045,6 @@ IVSOSDCoreManager.prototype.initializeTerrainModule = async function() {
 
 IVSOSDCoreManager.prototype.initializeCurrentModule = async function() {
     try {
-        console.log('🌊 初始化洋流风场模块...');
         
         // 初始化洋流数据
         this.initializeCurrentData();
@@ -1126,7 +1056,6 @@ IVSOSDCoreManager.prototype.initializeCurrentModule = async function() {
         this.setupCurrentLegend();
         
         this.modules.current.initialized = true;
-        console.log('✅ 洋流风场模块初始化完成');
         
     } catch (error) {
         console.error('❌ 洋流风场模块初始化失败:', error);
@@ -1136,7 +1065,6 @@ IVSOSDCoreManager.prototype.initializeCurrentModule = async function() {
 // 剖面模块相关方法
 IVSOSDCoreManager.prototype.initializeProfileData = function() {
     try {
-        console.log('📊 初始化剖面数据...');
         
         // 初始化大面信息选择器
         this.setupDaMianSelector();
@@ -1144,7 +1072,6 @@ IVSOSDCoreManager.prototype.initializeProfileData = function() {
         // 初始化三维剖面参数
         this.setupProfileParameters();
         
-        console.log('✅ 剖面数据初始化完成');
         
     } catch (error) {
         console.error('❌ 剖面数据初始化失败:', error);
@@ -1165,7 +1092,6 @@ IVSOSDCoreManager.prototype.setupDaMianSelector = function() {
             this.loadDaMianData();
         });
         
-        console.log('✅ 大面信息选择器设置完成');
         
     } catch (error) {
         console.error('❌ 大面信息选择器设置失败:', error);
@@ -1174,7 +1100,6 @@ IVSOSDCoreManager.prototype.setupDaMianSelector = function() {
 
 IVSOSDCoreManager.prototype.loadDaMianData = function() {
     try {
-        console.log('📊 加载大面数据...');
         
         // 保护影像图层
         if (this.imageryManager) {
@@ -1205,7 +1130,6 @@ IVSOSDCoreManager.prototype.loadDaMianData = function() {
 
 IVSOSDCoreManager.prototype.loadTemperatureData = function(selectedValue) {
     try {
-        console.log('🌡️ 加载温度数据:', selectedValue);
         
         // 清除之前的数据源
         this.viewer.dataSources.removeAll();
@@ -1238,7 +1162,6 @@ IVSOSDCoreManager.prototype.loadTemperatureData = function(selectedValue) {
 
 IVSOSDCoreManager.prototype.loadKMZData = function(dataPath) {
     try {
-        console.log('📊 加载KMZ数据:', dataPath);
         
         const options = {
             camera: this.viewer.scene.camera,
@@ -1254,7 +1177,6 @@ IVSOSDCoreManager.prototype.loadKMZData = function(dataPath) {
                 this.updateTemperatureRange(entities);
             }
             
-            console.log('✅ KMZ数据加载成功');
             
         }).otherwise((error) => {
             console.error('❌ KMZ数据加载失败:', error);
@@ -1299,7 +1221,6 @@ IVSOSDCoreManager.prototype.updateTemperatureRange = function(entities) {
 // 地形模块相关方法
 IVSOSDCoreManager.prototype.initializeTerrainRendering = function() {
     try {
-        console.log('🏔️ 初始化地形渲染...');
         
         // 设置地形相关的globe属性
         this.globe.depthTestAgainstTerrain = true;
@@ -1307,7 +1228,6 @@ IVSOSDCoreManager.prototype.initializeTerrainRendering = function() {
         // 初始化地形插值参数
         this.setupTerrainInterpolation();
         
-        console.log('✅ 地形渲染初始化完成');
         
     } catch (error) {
         console.error('❌ 地形渲染初始化失败:', error);
@@ -1342,7 +1262,6 @@ IVSOSDCoreManager.prototype.bindTerrainControls = function() {
 
 IVSOSDCoreManager.prototype.renderTerrain = function() {
     try {
-        console.log('🏔️ 渲染地形...');
         
         // 保护影像图层
         if (this.imageryManager) {
@@ -1363,7 +1282,6 @@ IVSOSDCoreManager.prototype.renderTerrain = function() {
 
 IVSOSDCoreManager.prototype.clearTerrain = function() {
     try {
-        console.log('🗑️ 清除地形...');
         
         // 清除地形相关的实体
         const entitiesToRemove = [];
@@ -1380,7 +1298,6 @@ IVSOSDCoreManager.prototype.clearTerrain = function() {
             this.viewer.entities.remove(entity);
         });
         
-        console.log('✅ 地形清除完成');
         
     } catch (error) {
         console.error('❌ 地形清除失败:', error);
@@ -1390,12 +1307,10 @@ IVSOSDCoreManager.prototype.clearTerrain = function() {
 // 洋流模块相关方法
 IVSOSDCoreManager.prototype.initializeCurrentData = function() {
     try {
-        console.log('🌊 初始化洋流数据...');
         
         // 初始化洋流可视化设置
         this.setupCurrentVisualization();
         
-        console.log('✅ 洋流数据初始化完成');
         
     } catch (error) {
         console.error('❌ 洋流数据初始化失败:', error);
@@ -1430,7 +1345,6 @@ IVSOSDCoreManager.prototype.bindCurrentControls = function() {
 
 IVSOSDCoreManager.prototype.loadCurrentField = function() {
     try {
-        console.log('🌊 加载洋流场...');
         
         // 保护影像图层
         if (this.imageryManager) {
@@ -1443,7 +1357,6 @@ IVSOSDCoreManager.prototype.loadCurrentField = function() {
         Cesium.CzmlDataSource.load(currentDataPath).then((dataSource) => {
             dataSource.name = '洋流场';
             this.viewer.dataSources.add(dataSource);
-            console.log('✅ 洋流场加载成功');
             
         }).otherwise((error) => {
             console.warn('⚠️ 洋流场数据文件不存在:', error);
@@ -1456,7 +1369,6 @@ IVSOSDCoreManager.prototype.loadCurrentField = function() {
 
 IVSOSDCoreManager.prototype.clearCurrentField = function() {
     try {
-        console.log('🗑️ 清除洋流场...');
         
         // 清除洋流相关的数据源
         const dataSourcesToRemove = [];
@@ -1472,7 +1384,6 @@ IVSOSDCoreManager.prototype.clearCurrentField = function() {
             this.viewer.dataSources.remove(dataSource);
         });
         
-        console.log('✅ 洋流场清除完成');
         
     } catch (error) {
         console.error('❌ 洋流场清除失败:', error);
@@ -1482,7 +1393,6 @@ IVSOSDCoreManager.prototype.clearCurrentField = function() {
 // 事件绑定方法
 IVSOSDCoreManager.prototype.bindProfileEvents = function() {
     try {
-        console.log('📊 绑定剖面事件...');
         
         // 绑定大面信息加载按钮
         $('#loadDaMianBtn').off('click').on('click', () => {
@@ -1505,7 +1415,6 @@ IVSOSDCoreManager.prototype.bindProfileEvents = function() {
 
 IVSOSDCoreManager.prototype.bindTerrainEvents = function() {
     try {
-        console.log('🏔️ 绑定地形事件...');
         // 地形事件绑定已在bindTerrainControls中实现
         
     } catch (error) {
@@ -1515,7 +1424,6 @@ IVSOSDCoreManager.prototype.bindTerrainEvents = function() {
 
 IVSOSDCoreManager.prototype.bindCurrentEvents = function() {
     try {
-        console.log('🌊 绑定洋流事件...');
         // 洋流事件绑定已在bindCurrentControls中实现
         
     } catch (error) {
@@ -1527,7 +1435,6 @@ IVSOSDCoreManager.prototype.bindCurrentEvents = function() {
 IVSOSDCoreManager.prototype.setupProfileLegend = function() {
     try {
         // 确保剖面图例元素存在并设置正确的显示状态
-        console.log('📊 设置剖面图例...');
         
     } catch (error) {
         console.error('❌ 剖面图例设置失败:', error);
@@ -1537,7 +1444,6 @@ IVSOSDCoreManager.prototype.setupProfileLegend = function() {
 IVSOSDCoreManager.prototype.setupTerrainLegend = function() {
     try {
         // 确保地形图例元素存在并设置正确的显示状态
-        console.log('🏔️ 设置地形图例...');
         
     } catch (error) {
         console.error('❌ 地形图例设置失败:', error);
@@ -1547,7 +1453,6 @@ IVSOSDCoreManager.prototype.setupTerrainLegend = function() {
 IVSOSDCoreManager.prototype.setupCurrentLegend = function() {
     try {
         // 确保洋流图例元素存在并设置正确的显示状态
-        console.log('🌊 设置洋流图例...');
         
     } catch (error) {
         console.error('❌ 洋流图例设置失败:', error);
@@ -1560,7 +1465,6 @@ IVSOSDCoreManager.prototype.handleVoyageRowClick = function(event) {
         const row = $(event.currentTarget);
         const voyageId = row.data('voyage-id');
         
-        console.log('🚢 航次行点击:', voyageId);
         
         // 切换到航次信息tab
         this.switchVoyageTab('voyage-info2');
@@ -1594,7 +1498,6 @@ IVSOSDCoreManager.prototype.switchVoyageTab = function(tabId) {
 
 IVSOSDCoreManager.prototype.loadVoyageDetails = function(voyageId) {
     try {
-        console.log('📋 加载航次详情:', voyageId);
         
         // 这里可以调用后端API加载航次详细信息
         // 暂时使用本地数据
@@ -1624,7 +1527,6 @@ IVSOSDCoreManager.prototype.displayVoyageDetails = function(voyage) {
 
 IVSOSDCoreManager.prototype.queryVoyages = function() {
     try {
-        console.log('🔍 查询航次...');
         this.loadVoyageData();
         
     } catch (error) {
@@ -1634,7 +1536,6 @@ IVSOSDCoreManager.prototype.queryVoyages = function() {
 
 IVSOSDCoreManager.prototype.voyPagePrevious = function() {
     try {
-        console.log('⬅️ 上一页');
         // 实现分页逻辑
         
     } catch (error) {
@@ -1644,7 +1545,6 @@ IVSOSDCoreManager.prototype.voyPagePrevious = function() {
 
 IVSOSDCoreManager.prototype.voyPageNext = function() {
     try {
-        console.log('➡️ 下一页');
         // 实现分页逻辑
         
     } catch (error) {
@@ -1655,7 +1555,6 @@ IVSOSDCoreManager.prototype.voyPageNext = function() {
 IVSOSDCoreManager.prototype.updateDataRangeDisplay = function(data) {
     try {
         // 更新数据范围显示
-        console.log('📊 更新数据范围显示:', data);
         
     } catch (error) {
         console.error('❌ 数据范围显示更新失败:', error);
