@@ -41,6 +41,12 @@ var scene = viewer.scene;
 viewer._cesiumWidget._creditContainer.style.display = "none";
 scene.skyAtmosphere = new Cesium.SkyAtmosphere();
 
+// 初始化影像图层管理器
+if (typeof window.initializeImageryManager === 'function') {
+    console.log('🖼️ 初始化影像图层管理器...');
+    window.initializeImageryManager(viewer);
+}
+
 var globe = scene.globe;
 globe.depthTestAgainstTerrain = true;
 
@@ -68,7 +74,7 @@ treeDiv.css('height', treeHeight);
 $('.sidebar-left').addClass('active');
 
 //移动鼠标，显示基本坐标信息
-ShowBaseInfo();
+//ShowBaseInfo();
 
 //初始化时间轴设置
 var startTime = Cesium.JulianDate.fromDate(new Date(2017, 1, 4, 0));
@@ -86,9 +92,13 @@ viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
 viewer.clock.multiplier = 1;
 
 var strSQLDataRange = "";
+// 定义callBackDataRange回调函数
+function callBackDataRange(result) {
+    console.log("数据范围查询结果:", result);
+}
 DatabaseOperationJS.QueryDataRange(strSQLDataRange, callBackDataRange);
 
-//加载全部航线 - 使用修复后的DWR调用方式
-AddAllRoute();
+//加载全部航线 - 移到voyage-list.js模块加载后执行
+// AddAllRoute(); // 此函数在voyage-list.js中定义，需等待模块加载
 
 var handler;

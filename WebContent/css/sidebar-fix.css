@@ -1,0 +1,296 @@
+/**
+ * 右侧面板样式修复
+ * 解决布局混乱问题
+ */
+
+/* 右侧面板基础样式 */
+.sidebar-new {
+    position: fixed !important;
+    top: 125px !important;
+    right: -450px !important;
+    width: 450px !important;
+    height: calc(100vh - 125px) !important;
+    background-color: #ffffff !important;
+    border-left: 2px solid #ddd !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    transition: right 0.3s ease !important;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3) !important;
+}
+
+/* 右侧面板激活状态 */
+.sidebar-new.active {
+    right: 0 !important;
+}
+
+/* 内容区域 */
+.sidebar-new .content-area {
+    flex: 1;
+    background-color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 内容面板 */
+.sidebar-new .content-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.sidebar-new .content-panel.active {
+    display: flex;
+}
+
+/* 子标签页样式 */
+.sidebar-new .sub-tabs {
+    display: flex;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+.sidebar-new .sub-tab {
+    flex: 1;
+    padding: 10px 15px;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 14px;
+}
+
+.sidebar-new .sub-tab:last-child {
+    border-right: none;
+}
+
+.sidebar-new .sub-tab:hover {
+    background-color: #e8e8e8;
+}
+
+.sidebar-new .sub-tab.active {
+    background-color: #ffffff;
+    border-bottom: 2px solid #337ab7;
+    color: #337ab7;
+    font-weight: bold;
+}
+
+/* 子内容区域 */
+.sidebar-new .sub-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: none;
+}
+
+.sidebar-new .sub-content.active {
+    display: block;
+}
+
+/* 信息内容区域 */
+.sidebar-new .info-contents-10 {
+    width: 100%;
+}
+
+/* 面板样式 */
+.sidebar-new .panel {
+    margin-bottom: 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+.sidebar-new .panel-info {
+    border-color: #bce8f1;
+}
+
+.sidebar-new .panel-heading {
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+    font-weight: bold;
+}
+
+/* 表格样式 */
+.sidebar-new .table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.sidebar-new .table th,
+.sidebar-new .table td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+.sidebar-new .table-bordered {
+    border: 1px solid #ddd;
+}
+
+.sidebar-new .table-bordered > thead > tr > th,
+.sidebar-new .table-bordered > tbody > tr > td {
+    border: 1px solid #ddd;
+}
+
+/* 按钮样式 */
+.sidebar-new button {
+    margin: 5px;
+}
+
+/* 滚动条样式 */
+.sidebar-new .sub-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-new .sub-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.sidebar-new .sub-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.sidebar-new .sub-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 修复内联样式冲突 */
+.sidebar-new * {
+    box-sizing: border-box;
+}
+
+/* 确保文字可读 */
+.sidebar-new {
+    color: #333;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+/* ==================== 面板开启/关闭按钮样式 ==================== */
+
+/* 右侧面板开启按钮 */
+.panel-opener {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 80px;
+    background: #3498db;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 9998;
+}
+
+.panel-opener:hover {
+    background: #2980b9;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.25);
+}
+
+.panel-opener.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 开启按钮箭头 */
+.opener-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 开启按钮提示 */
+.opener-tooltip {
+    position: absolute;
+    right: 45px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.panel-opener:hover .opener-tooltip {
+    opacity: 1;
+}
+
+/* 右侧面板关闭按钮 */
+.panel-closer {
+    position: fixed;
+    top: 50%;
+    right: -50px; /* 默认隐藏在屏幕外 */
+    transform: translateY(-50%);
+    width: 30px;
+    height: 60px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease, opacity 0.3s ease;
+    z-index: 10000;
+}
+
+.panel-closer:hover {
+    background: #e9ecef;
+    box-shadow: -3px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 关闭按钮箭头 */
+.panel-closer svg {
+    transition: transform 0.2s ease;
+}
+
+.panel-closer:hover svg {
+    transform: translateX(2px);
+}
+
+/* 面板激活时隐藏开启按钮 */
+.sidebar-new.active ~ .panel-opener {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 面板激活时显示关闭按钮并调整位置 */
+.sidebar-new.active ~ .panel-closer {
+    right: 450px !important; /* 紧贴在面板左边线的左侧 */
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* 面板非激活时隐藏关闭按钮 */
+.sidebar-new:not(.active) ~ .panel-closer {
+    right: -50px !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}

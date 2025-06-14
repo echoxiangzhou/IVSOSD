@@ -85,6 +85,15 @@ jQuery(function () {
 });
 
 function initializeFancytree() {
+    console.log('🌳 初始化航次分类树...');
+    
+    // 确保左侧面板显示
+    const sidebarLeft = document.querySelector('.sidebar-left');
+    if (sidebarLeft) {
+        sidebarLeft.classList.add('active');
+        console.log('✅ 左侧面板已激活');
+    }
+    
     jQuery("#tree").fancytree({
         extensions: ["dnd"],
         checkbox: true,

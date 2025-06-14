@@ -26,6 +26,7 @@
     <link type='text/css' rel='stylesheet' href="css/force_panel_layout.css">
     <link type='text/css' rel='stylesheet' href="css/final_panel_fix.css">
     <link type='text/css' rel='stylesheet' href="css/fix_earth_shift.css">
+    <link type='text/css' rel='stylesheet' href="css/sidebar-fix.css">
 
 
     <style>
@@ -78,48 +79,6 @@
         }
     </style>
 
-    <script>
-        // 航次站点点击函数将由 new_panel_controller.js 提供
-        // 备用函数，防止脚本加载延迟
-        if (typeof window.openVoyagePanel === 'undefined') {
-            window.openVoyagePanel = function() {
-                // 等待脚本加载完成
-                const tryOpen = function() {
-                    if (typeof window.openVoyagePanel !== 'undefined' && window.openVoyagePanel !== tryOpen) {
-                        window.openVoyagePanel();
-                    } else {
-                        // 直接操作DOM
-                        const panel = document.getElementById('sidebar-right');
-                        if (panel) {
-                            panel.classList.add('active');
-                            panel.style.right = '0px';
-                            panel.style.display = 'flex';
-                            
-                            // 延迟执行修复
-                            setTimeout(() => {
-                                if (typeof window.forcePanelContentFix === 'function') {
-                                    window.forcePanelContentFix();
-                                }
-                            }, 200);
-                        } else {
-                            setTimeout(tryOpen, 100);
-                        }
-                    }
-                };
-                tryOpen();
-            };
-        }
-        
-        // 其他页面级别的函数
-        function poumianclick() {
-        }
-        
-        function dixingclick() {
-        }
-        
-        function yangliuclick() {
-        }
-    </script>
 
 </head>
 
@@ -185,11 +144,12 @@
 
 
         <!-- 全新设计的右侧面板 -->
-        <div class='sidebar-new' id='sidebar-right' style="position: fixed !important; top: 125px !important; right: -450px !important; width: 450px !important; height: calc(100vh - 125px) !important; background-color: #ffffff !important; background: #ffffff !important; border-left: 2px solid #ddd !important; z-index: 9999 !important; display: flex !important; flex-direction: column !important; transform: none !important; transition: right 0.3s ease !important; box-shadow: -5px 0 15px rgba(0,0,0,0.3) !important;">
+        <div class='sidebar-new' id='sidebar-right'>
+            
             <!-- 内容区域 -->
-            <div class='content-area' style="flex: 1 !important; background-color: #ffffff !important; background: #ffffff !important; position: relative !important;">
+            <div class='content-area'>
                 <!-- 航次内容 -->
-                <div class='content-panel active' id='voyage-content' style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; background-color: #ffffff !important; background: #ffffff !important;">
+                <div class='content-panel active' id='voyage-content'>
                     <!-- 子标签页 -->
                     <div class='sub-tabs'>
                         <div class='sub-tab active' id='voyage-query-tab' data-target='voyage-query-content'>航次查询</div>
@@ -362,6 +322,23 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- 右侧面板关闭按钮 -->
+        <div class='panel-closer' id='right-panel-closer'>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M8 4L12 10L8 16" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        
+        <!-- 右侧面板开启按钮 -->
+        <div class='panel-opener' id='right-panel-opener'>
+            <div class="opener-arrow">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 4L8 10L12 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="opener-tooltip">打开右侧面板</div>
         </div>
 
         <div class='sidebar-left' id='sidebar-left'>
@@ -556,15 +533,10 @@ function checkDWRAndLoadApp() {
     // 动态加载应用脚本
     var scripts = [
         'js/initial.js?v=' + Date.now(),
-        'js/main.js?v=' + Date.now(),
-        'js/new_panel_controller.js?v=' + Date.now(),
-        'js/navigation_enhanced.js?v=' + Date.now(),
+        'js/imagery_manager.js?v=' + Date.now(),  // 影像图层管理器需要先加载
+        'js/main-loader.js?v=' + Date.now(),
         'js/panel_fixes_combined.js?v=' + Date.now(),
-        'js/debug_panel_content.js?v=' + Date.now(),
-        'js/terrain.js?v=' + Date.now(),
-        'js/profile.js?v=' + Date.now(),
-        'js/stationinfo.js?v=' + Date.now(),
-        'js/voyage.js?v=' + Date.now()
+        'js/voyage.js?v=' + Date.now()  // 航次树形控件初始化
     ];
     
     function loadScript(index) {

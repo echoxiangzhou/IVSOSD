@@ -53,7 +53,7 @@ class CombinedPanelFixManager {
         this.addComprehensiveStyles();
         
         // 2. 面板开启功能修复
-        this.createRightPanelOpener();
+        this.initRightPanelOpener();
         this.fixNavigationButtons();
         this.bindKeyboardShortcuts();
         
@@ -75,118 +75,39 @@ class CombinedPanelFixManager {
     /**
      * 创建右侧面板开启按钮
      */
-    createRightPanelOpener() {
-        // 检查是否已存在开启按钮
-        if (document.getElementById('right-panel-opener')) {
+    initRightPanelOpener() {
+        // 获取HTML中的开启按钮
+        const opener = document.getElementById('right-panel-opener');
+        if (!opener) {
+            console.error('右侧面板开启按钮未找到');
             return;
         }
         
-        // 创建右侧面板的关闭按钮（黄色竖条改为箭头）
-        this.createRightPanelCloser();
-
-        // 创建开启按钮
-        const opener = document.createElement('div');
-        opener.id = 'right-panel-opener';
-        opener.className = 'panel-opener right-panel-opener';
-        opener.innerHTML = `
-            <div class="opener-arrow">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M12 4L8 10L12 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div class="opener-tooltip">打开右侧面板</div>
-        `;
-
-        // 设置样式
-        opener.style.cssText = `
-            position: fixed;
-            top: 50%;
-            right: 0;
-            transform: translateY(-50%);
-            width: 30px;
-            height: 60px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            border-radius: 15px 0 0 15px;
-            cursor: pointer;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            opacity: 0.8;
-        `;
-
-        // 悬停效果
-        opener.addEventListener('mouseenter', () => {
-            opener.style.width = '35px';
-            opener.style.opacity = '1';
-            opener.style.boxShadow = '-4px 0 15px rgba(0, 0, 0, 0.3)';
-        });
-
-        opener.addEventListener('mouseleave', () => {
-            opener.style.width = '30px';
-            opener.style.opacity = '0.8';
-            opener.style.boxShadow = '-2px 0 10px rgba(0, 0, 0, 0.2)';
-        });
+        // 初始化关闭按钮
+        this.initRightPanelCloser();
 
         // 点击事件
         opener.addEventListener('click', () => {
             this.toggleRightPanel();
         });
 
-        // 添加到页面
-        document.body.appendChild(opener);
-
     }
     
     /**
      * 创建右侧面板关闭按钮（替代原来的黄色竖条）
      */
-    createRightPanelCloser() {
-        // 检查是否已存在关闭按钮
-        if (document.getElementById('right-panel-closer')) {
+    initRightPanelCloser() {
+        // 获取HTML中的关闭按钮
+        const closer = document.getElementById('right-panel-closer');
+        if (!closer) {
+            console.error('右侧面板关闭按钮未找到');
             return;
         }
-        
-        // 创建关闭按钮（放在右侧面板左边缘）
-        const closer = document.createElement('div');
-        closer.id = 'right-panel-closer';
-        closer.className = 'panel-closer';
-        closer.innerHTML = `
-            <div class="closer-arrow">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M8 4L12 10L8 16" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-        `;
-        
-        // 设置样式（固定在右侧面板左边缘）
-        closer.style.cssText = `
-            position: fixed;
-            top: 50%;
-            right: 450px; /* 初始位置在面板左边缘 */
-            transform: translateY(-50%);
-            width: 30px;
-            height: 60px;
-            background: #FFD700; /* 黄色背景 */
-            border-radius: 15px 0 0 15px;
-            cursor: pointer;
-            z-index: 10001;
-            display: none; /* 初始隐藏 */
-            align-items: center;
-            justify-content: center;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        `;
         
         // 点击事件 - 关闭右侧面板
         closer.addEventListener('click', () => {
             this.hideRightPanel();
         });
-        
-        // 添加到页面
-        document.body.appendChild(closer);
         
     }
 
@@ -253,24 +174,11 @@ class CombinedPanelFixManager {
      */
     showRightPanel() {
         const panel = document.getElementById('sidebar-right');
-        const opener = document.getElementById('right-panel-opener');
-        const closer = document.getElementById('right-panel-closer');
         const mapContainer = document.getElementById('vmap');
 
         if (panel) {
             panel.classList.add('active');
             this.rightPanelVisible = true;
-
-            // 隐藏开启按钮
-            if (opener) {
-                opener.classList.add('hidden');
-            }
-            
-            // 显示关闭按钮并调整位置
-            if (closer) {
-                closer.style.display = 'flex';
-                closer.style.right = '450px'; // 面板宽度
-            }
 
             // 调整地图容器
             if (mapContainer) {
@@ -293,23 +201,11 @@ class CombinedPanelFixManager {
      */
     hideRightPanel() {
         const panel = document.getElementById('sidebar-right');
-        const opener = document.getElementById('right-panel-opener');
-        const closer = document.getElementById('right-panel-closer');
         const mapContainer = document.getElementById('vmap');
 
         if (panel) {
             panel.classList.remove('active');
             this.rightPanelVisible = false;
-
-            // 显示开启按钮
-            if (opener) {
-                opener.classList.remove('hidden');
-            }
-            
-            // 隐藏关闭按钮
-            if (closer) {
-                closer.style.display = 'none';
-            }
 
             // 恢复地图容器
             if (mapContainer) {
@@ -768,47 +664,9 @@ class CombinedPanelFixManager {
                 right: 0 !important;
             }
 
-            /* 右侧面板开启按钮工具提示 */
-            .panel-opener .opener-tooltip {
-                position: absolute;
-                right: 40px;
-                top: 50%;
-                transform: translateY(-50%);
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 5px 10px;
-                border-radius: 4px;
-                font-size: 12px;
-                white-space: nowrap;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-            }
-
-            .panel-opener:hover .opener-tooltip {
-                opacity: 1;
-            }
-
             /* 确保地图容器不被遮挡 */
             .vmap {
                 transition: width 0.3s ease, right 0.3s ease !important;
-            }
-
-            /* 隐藏开启按钮当面板打开时 */
-            .right-panel-opener.hidden {
-                opacity: 0 !important;
-                pointer-events: none !important;
-            }
-            
-            /* 右侧面板关闭按钮样式 */
-            #right-panel-closer {
-                transition: right 0.3s ease !important;
-            }
-            
-            /* 当面板活动时，关闭按钮跟随面板移动 */
-            #sidebar-right.active ~ #right-panel-closer,
-            body:has(#sidebar-right.active) #right-panel-closer {
-                right: 450px !important;
             }
 
             /* 导航按钮增强 */
