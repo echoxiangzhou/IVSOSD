@@ -18,7 +18,7 @@
     <link type='text/css' rel="stylesheet" href="ThirdParty/fancytree/src/jquery-ui.css"/>
     <link type='text/css' rel='stylesheet' href="ThirdParty/fancytree/src/skin-win8/ui.fancytree.css"
           class="skinswitcher"/>
-    <link type='text/css' rel='stylesheet' href="Apps/Sandcastle/templates/bucket.css">
+    <link type='text/css' rel='stylesheet' href="cesium/Apps/Sandcastle/templates/bucket.css">
     <link type='text/css' rel='stylesheet' href="css/style.css">
     <link type='text/css' rel='stylesheet' href="css/override_black_backgrounds.css">
     <link type='text/css' rel='stylesheet' href="css/new_panel_layout.css">
@@ -484,8 +484,8 @@
 <script type='text/javascript' src='./dwr/interface/DatabaseOperationJS.js'></script>
 
 <!-- 第2步：加载Cesium和jQuery -->
-<script type='text/javascript' src="Build/Cesium/Cesium.js?v=1.130.20241210"></script>
-<script type='text/javascript' src="Apps/Sandcastle/Sandcastle-header.js"></script>
+<script type='text/javascript' src="cesium/Build/Cesium/Cesium.js?v=1.130.20241210"></script>
+<script type='text/javascript' src="cesium/Apps/Sandcastle/Sandcastle-header.js"></script>
 <script type='text/javascript' src="ThirdParty/jquery/jquery.min.js"></script>
 <script type='text/javascript' src="ThirdParty/bootstrap/bootstrap.min.js"></script>
 <script type='text/javascript' src="ThirdParty/datepicker/dist/js/bootstrap-datepicker.js"></script>
@@ -530,7 +530,9 @@ function checkDWRAndLoadApp() {
     }
     
     
-    // 动态加载应用脚本
+    // 正常模式：加载所有必要的应用脚本
+    console.log("🚀 开始加载应用模块...");
+    
     var scripts = [
         'js/initial.js?v=' + Date.now(),
         'js/imagery_manager.js?v=' + Date.now(),  // 影像图层管理器需要先加载

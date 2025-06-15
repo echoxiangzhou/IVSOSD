@@ -1,102 +1,124 @@
 /**
  * @filename: initial.js
  * @description: Create a Viewer instances and add the DataSource.初始化cesium视图并加载数据
- * @version: 原始版本 - 恢复正常三维地球显示
+ * @version: 1.130 - 使用最新版本Cesium
  * @date: 2016-11-26
  * @author:
  * CopyRight (c) 2016-2017 FocusMap.Co.Ltd. All rights reserved.
  */
 
-// 恢复原始的Cesium配置，确保三维地球正常显示
-var viewer = new Cesium.Viewer(
-    'vmap',
-    {
-        animation: true,
-        baseLayerPicker: false,
-        fullscreenButton: false,
-        geocoder: false,
-        homeButton: false,
-        infoBox: false,
-        sceneModePicker: false,
-        terrainExaggeration: 100,
-        selectionIndicator: false,
-        timeline: false,
-        navigationHelpButton: false,
-        scene3DOnly: false,
-        navigationInstructionsInitiallyVisible: false,
-        showRenderLoopErrors: false
+
+
+// 创建使用最新版本Cesium 1.130的Viewer
+try {
+    var viewer = new Cesium.Viewer('vmap', {
+        animation: false,           // 禁用动画控件
+        baseLayerPicker: false,    // 禁用底图选择器
+        fullscreenButton: false,   // 禁用全屏按钮
+        geocoder: false,           // 禁用地址搜索
+        homeButton: true,          // 保留主页按钮方便测试
+        infoBox: false,            // 禁用信息框
+        sceneModePicker: false,    // 禁用场景模式选择器
+        selectionIndicator: false, // 禁用选择指示器
+        timeline: false,           // 禁用时间轴
+        navigationHelpButton: false, // 禁用导航帮助
+        scene3DOnly: true,         // 强制3D模式
+        showRenderLoopErrors: true // 显示渲染错误便于调试
     });
+    
 
-// 原始的动画容器设置
-$('.cesium-viewer-animationContainer').css('width', '0px');
-$('.cesium-viewer-animationContainer').css('height', '0px');
-$('.cesium-viewer-animationContainer').css('display', 'none');
+    
+    // 隐藏版权信息
+    if (viewer._cesiumWidget._creditContainer) {
+        viewer._cesiumWidget._creditContainer.style.display = "none";
+    }
+    
+    // 基本场景设置
+    var scene = viewer.scene;
+    var globe = scene.globe;
+    globe.depthTestAgainstTerrain = true;
+    
+  
+    
+    // 设置初始视角到中国海域
+    viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(105.00, 24.00, 24000000.0)
+    });
+    
 
-//初始化球体视野中心
-viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(105.00, 24.00, 24000000.0)
-});
+    
+    // 确保容器样式正确
+    var earthContainerHeight = document.body.clientHeight - 100;
+    var mapDiv = $('#vmap');
+    var mapWidth = document.body.clientWidth;
+    
+    mapDiv.css({
+        'width': mapWidth,
+        'height': earthContainerHeight,
+        'display': 'block',
+        'visibility': 'visible'
+    });
+    
 
-var scene = viewer.scene;
-viewer._cesiumWidget._creditContainer.style.display = "none";
-scene.skyAtmosphere = new Cesium.SkyAtmosphere();
+    
+    // 设置动画容器
+    $('.cesium-viewer-animationContainer').css({
+        'width': '0px',
+        'height': '0px',
+        'display': 'none'
+    });
+    
+    // 设置正北为0，俯视角度
+    var heading = Cesium.Math.toRadians(0);
+    var pitch = Cesium.Math.toRadians(-90);
+    var range = 500 * 10000;
+    viewer.zoomTo(viewer.entities, new Cesium.HeadingPitchRange(heading, pitch, range));
+    
+    // 设置侧边栏
+    $('.sidebar-left').addClass('active');
+    
+    var treeDiv = $('#tree');
+    var treeHeight = document.body.clientHeight - 325;
+    treeDiv.css('height', treeHeight);
+    
+    // 初始化时间轴设置
+    var startTime = Cesium.JulianDate.fromDate(new Date(2017, 1, 4, 0));
+    var stopTime = Cesium.JulianDate.addDays(startTime, 7, new Cesium.JulianDate());
+    var currentTime = Cesium.JulianDate.fromIso8601("2017-01-04");
+    
+    viewer.clock.startTime = startTime.clone();
+    viewer.clock.stopTime = stopTime.clone();
+    viewer.clock.currentTime = currentTime.clone();
+    viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
+    viewer.clock.multiplier = 1;
+    
 
-// 初始化影像图层管理器
-if (typeof window.initializeImageryManager === 'function') {
-    window.initializeImageryManager(viewer);
+    
+    // 查询数据范围
+    var strSQLDataRange = "";
+    function callBackDataRange(result) {
+        // 数据范围回调处理
+    }
+    
+    if (typeof DatabaseOperationJS !== 'undefined') {
+        DatabaseOperationJS.QueryDataRange(strSQLDataRange, callBackDataRange);
+    }
+    
+    // 暴露viewer到全局作用域
+    window.viewer = viewer;
+    window.debugViewer = viewer;
+    
+
+    
+} catch (error) {
+    console.error("❌ Cesium初始化失败:", error);
+    
+    // 显示错误信息到页面
+    var vmapElement = document.getElementById('vmap');
+    if (vmapElement) {
+        vmapElement.innerHTML = '<div style="color: red; padding: 20px; font-size: 16px;">Cesium 初始化失败: ' + error.message + '</div>';
+    }
 }
 
-var globe = scene.globe;
-globe.depthTestAgainstTerrain = true;
-
-var earthContainerHeight = document.body.clientHeight - 100;
-var earthContainerDiv = $('#earthContainer');
-earthContainerDiv.css('height', earthContainerHeight);
-
-//正北为0
-var heading = Cesium.Math.toRadians(0);
-//倾斜角度(此为正上方,俯视)
-var pitch = Cesium.Math.toRadians(-90);
-//视角高度(meter)
-var range = 500 * 10000;
-viewer.zoomTo(viewer.entities, new Cesium.HeadingPitchRange(heading, pitch, range));
-
-var mapDiv = $('#vmap');
-mapDiv.css('left', '0px');
-var mapWidth = document.body.clientWidth;
-mapDiv.css('width', mapWidth);
-
-var treeDiv = $('#tree');
-var treeHeight = document.body.clientHeight - 325;
-treeDiv.css('height', treeHeight);
-
-$('.sidebar-left').addClass('active');
-
-//移动鼠标，显示基本坐标信息
-//ShowBaseInfo();
-
-//初始化时间轴设置
-var startTime = Cesium.JulianDate.fromDate(new Date(2017, 1, 4, 0));
-var stopTime = Cesium.JulianDate.addDays(startTime, 7, new Cesium.JulianDate());
-
-var currentTime = Cesium.JulianDate.fromIso8601("2017-01-04");
-var clockRange = Cesium.ClockRange.CLAMPED;
-var clockStep = Cesium.ClockStep.SYSTEM_CLOCK_MULTIPLIER;
-
-//Make sure viewer is at the desired time.
-viewer.clock.startTime = startTime.clone();
-viewer.clock.stopTime = stopTime.clone();
-viewer.clock.currentTime = currentTime.clone();
-viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
-viewer.clock.multiplier = 1;
-
-var strSQLDataRange = "";
-// 定义callBackDataRange回调函数
-function callBackDataRange(result) {
-}
-DatabaseOperationJS.QueryDataRange(strSQLDataRange, callBackDataRange);
-
-//加载全部航线 - 移到voyage-list.js模块加载后执行
-// AddAllRoute(); // 此函数在voyage-list.js中定义，需等待模块加载
-
+// 全局变量声明
 var handler;

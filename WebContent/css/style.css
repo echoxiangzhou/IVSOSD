@@ -4918,10 +4918,15 @@ html, body {
 
 /* 确保Cesium正常显示但不过度干预 */
 #vmap {
-    position: relative;
-    z-index: 1;  /* 降低z-index让侧边栏显示在上方 */
+    position: absolute !important;
+    top: 125px !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100% - 125px) !important;
+    z-index: 1 !important;
     display: block !important;
     visibility: visible !important;
+    overflow: hidden !important;
 }
 
 .cesium-viewer-cesiumWidgetContainer {
@@ -6082,4 +6087,3 @@ a {
     margin: 0 15px;
     font-weight: bold;
 }
-EOF < /dev/null
